@@ -1,0 +1,3461 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>柴犬股神：台股預測與模擬投資日記 | Shiba Stock God</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #1e293b;
+      --bg-card-hover: #283548;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --tw-red: #f43f5e;     /* 台股漲：紅色 */
+      --tw-green: #10b981;   /* 台股跌：綠色 */
+      --tw-gold: #f59e0b;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 16px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      font-size: 2rem;
+    }
+
+    .brand-title h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-title p {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-icon {
+      background: #334155;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      background: #475569;
+      transform: translateY(-1px);
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+    }
+
+    /* Mascot Panel */
+    .mascot-card {
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mascot-avatar {
+      width: 148px;
+      height: 148px;
+      margin: 0 auto 10px;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .mascot-avatar:hover {
+      transform: scale(1.06);
+    }
+
+    /* Cute Rank Badge Banner */
+    .rank-badge-banner {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.85));
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .rank-badge-banner:hover {
+      border-color: rgba(245, 158, 11, 0.65);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(245, 158, 11, 0.2);
+    }
+
+    .rank-pill-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+      white-space: nowrap;
+      transition: all 0.3s ease;
+    }
+
+    .mascot-quote-box {
+      background: #0f172a;
+      border: 1px solid #3b82f6;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      color: #93c5fd;
+      position: relative;
+      margin-bottom: 14px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mascot-quote-box::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 0 8px 8px 8px;
+      border-style: solid;
+      border-color: transparent transparent #3b82f6 transparent;
+    }
+
+    /* Asset Summary */
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.9rem;
+    }
+
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      color: var(--text-sub);
+    }
+
+    .stat-val {
+      font-weight: 700;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1rem;
+    }
+
+    .text-red { color: var(--tw-red) !important; }
+    .text-green { color: var(--tw-green) !important; }
+    .text-gold { color: var(--tw-gold) !important; }
+
+    /* Prediction Section */
+    .predict-box {
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border: 1px solid #38bdf844;
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .predict-title {
+      font-size: 0.88rem;
+      color: #38bdf8;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .predict-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .btn-predict {
+      padding: 10px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .btn-predict.up {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--tw-red);
+      border-color: rgba(244, 63, 94, 0.3);
+    }
+
+    .btn-predict.down {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--tw-green);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-predict.selected {
+      transform: scale(1.03);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-predict.up.selected {
+      background: var(--tw-red);
+      color: white;
+      border-color: #ffe4e6;
+    }
+
+    .btn-predict.down.selected {
+      background: var(--tw-green);
+      color: white;
+      border-color: #d1fae5;
+    }
+
+    .btn-advance-day {
+      width: 100%;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #0f172a;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-advance-day:hover {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+    }
+
+    /* News Feed */
+    .news-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .news-item {
+      background: rgba(15, 23, 42, 0.6);
+      border-left: 3px solid #38bdf8;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .news-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      width: fit-content;
+      font-weight: 600;
+    }
+
+    .tag-bull { background: rgba(244, 63, 94, 0.2); color: var(--tw-red); }
+    .tag-bear { background: rgba(16, 185, 129, 0.2); color: var(--tw-green); }
+    .tag-tech { background: rgba(56, 189, 248, 0.2); color: var(--accent); }
+
+    /* Stock Market Desk */
+    .market-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .tab-btn {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: #38bdf8;
+      color: #0f172a;
+      font-weight: 700;
+      border-color: #38bdf8;
+    }
+
+    .stock-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .stock-card {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+
+    .stock-card:hover {
+      border-color: #475569;
+      transform: translateY(-2px);
+    }
+
+    .stock-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .stock-code {
+      font-size: 0.75rem;
+      background: #334155;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #cbd5e1;
+    }
+
+    .stock-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .stock-cat {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+    }
+
+    .stock-price-area {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+
+    .stock-price {
+      font-size: 1.35rem;
+      font-weight: 800;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .stock-change {
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .stock-holdings {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .stock-holdings.active-holding {
+      background: rgba(56, 189, 248, 0.07);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .stock-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .btn-trade {
+      padding: 7px 4px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.25;
+    }
+
+    .btn-trade small {
+      font-size: 0.7rem;
+      font-weight: normal;
+      opacity: 0.9;
+    }
+
+    .btn-buy {
+      background: var(--tw-red);
+      color: white;
+    }
+
+    .btn-sell {
+      background: #475569;
+      color: white;
+    }
+
+    .btn-sell:not(:disabled) {
+      background: #dc2626;
+    }
+
+    .btn-short-sell {
+      background: var(--tw-green);
+      color: white;
+    }
+
+    .btn-short-cover {
+      background: #475569;
+      color: white;
+    }
+
+    .btn-short-cover:not(:disabled) {
+      background: #0d9488;
+    }
+
+    .btn-trade:hover:not(:disabled) {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .btn-trade:disabled {
+      background: #334155;
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+
+    .btn-quick-cover {
+      background: #0d9488;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: opacity 0.2s;
+    }
+    .btn-quick-cover:hover { opacity: 0.85; }
+
+    .tag-long {
+      background: rgba(244, 63, 94, 0.18);
+      color: var(--tw-red);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    .tag-short {
+      background: rgba(16, 185, 129, 0.18);
+      color: var(--tw-green);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    /* Delisted Stock Styling */
+    .stock-card.delisted {
+      border: 1px dashed #ef4444;
+      background: rgba(239, 68, 68, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .delist-stamp {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-12deg);
+      background: rgba(239, 68, 68, 0.95);
+      color: #fff;
+      border: 2px dashed #fecaca;
+      padding: 5px 12px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      border-radius: 6px;
+      letter-spacing: 1px;
+      pointer-events: none;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+      z-index: 5;
+      white-space: nowrap;
+    }
+
+    .btn-reorganize {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: white;
+      grid-column: span 2;
+      font-weight: bold;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-reorganize:hover {
+      filter: brightness(1.15);
+      transform: scale(1.02);
+    }
+
+    /* Portfolio Table / Inventory Card */
+    .portfolio-card {
+      margin-bottom: 20px;
+    }
+
+    .portfolio-table-wrap {
+      overflow-x: auto;
+      border-radius: 8px;
+    }
+
+    .portfolio-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    .portfolio-table th {
+      padding: 10px 12px;
+      color: var(--text-sub);
+      background: #0f172a;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .portfolio-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    .portfolio-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .empty-portfolio {
+      text-align: center;
+      padding: 26px 12px;
+      color: var(--text-sub);
+      font-size: 0.9rem;
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 8px;
+      border: 1px dashed var(--border-color);
+    }
+
+    .btn-quick-sell {
+      background: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-quick-sell:hover {
+      background: var(--tw-green);
+      color: white;
+      border-color: var(--tw-green);
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .badge-pill.up { background: rgba(244, 63, 94, 0.18); color: var(--tw-red); }
+    .badge-pill.down { background: rgba(16, 185, 129, 0.18); color: var(--tw-green); }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal-box {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      max-width: 500px;
+      width: 100%;
+      padding: 24px;
+      text-align: center;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-img {
+      width: 130px;
+      height: 130px;
+      margin: 0 auto 12px;
+    }
+
+    .modal-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      color: var(--text-sub);
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .modal-stats {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .btn-modal {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary { background: #38bdf8; color: #0f172a; }
+    .btn-warning { background: #f59e0b; color: #0f172a; }
+    .btn-danger { background: #ef4444; color: white; }
+
+    /* Capital Setting Modal */
+    .capital-presets {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .preset-btn {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 12px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      text-align: left;
+      transition: all 0.2s;
+    }
+
+    .preset-btn:hover, .preset-btn.selected {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .preset-btn b {
+      display: block;
+      font-size: 1.05rem;
+      color: #38bdf8;
+      margin-bottom: 2px;
+    }
+
+    .preset-btn small {
+      color: var(--text-sub);
+      font-size: 0.75rem;
+    }
+
+    .custom-capital-box {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .custom-capital-box label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    .custom-capital-input {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      color: white;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .custom-capital-input:focus {
+      outline: none;
+      border-color: #38bdf8;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 24px 0;
+      color: var(--text-sub);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="brand-logo">🐕📈</div>
+        <div class="brand-title">
+          <h1>柴犬股神：台股預測與模擬投資日記</h1>
+          <p>第 <span id="day-counter" class="text-gold">1</span> 個交易日 ｜ 加權指數：<span id="twse-index" class="text-red">22,850</span> ｜ <span id="market-sentiment-tag" style="background:rgba(255,255,255,0.08); padding:2px 8px; border-radius:10px; font-size:0.75rem; border:1px solid rgba(255,255,255,0.15);">⚖️ 高檔震盪洗盤</span></p>
+        </div>
+      </div>
+      <div class="header-controls">
+        <button id="btn-lottery" class="btn-icon" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: 700; border: none; box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);">
+          🎟️ 股票申購抽籤 <span id="lottery-badge" style="background: #fff; color: #ef4444; padding: 1px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; margin-left: 2px;">樂透</span>
+        </button>
+        <button id="btn-set-capital" class="btn-icon">💰 設定本金</button>
+        <button id="bgm-toggle" class="btn-icon">🎵 音樂：開啟</button>
+        <button id="btn-reset" class="btn-icon">🔄 重新開局</button>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <div class="dashboard-grid">
+      <!-- Left Sidebar: Mascot + Assets + Daily Prediction -->
+      <aside>
+        <!-- Mascot Card -->
+        <div class="card mascot-card">
+          <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 700; color: #f8fafc;">🐾 柴犬特助・波比</span>
+            <span id="player-title" class="rank-pill-badge">🌱 實習小韭菜</span>
+          </div>
+
+          <div id="mascot-art" class="mascot-avatar">
+            <!-- Normal Kawaii SVG Mascot -->
+            <svg viewBox="0 0 120 120" width="100%" height="100%">
+              <defs>
+                <linearGradient id="shibaFur_init" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#fbb03b"/>
+                  <stop offset="100%" stop-color="#f39200"/>
+                </linearGradient>
+                <linearGradient id="shibaInnerEar_init" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#fecdd3"/>
+                  <stop offset="100%" stop-color="#fda4af"/>
+                </linearGradient>
+              </defs>
+              <!-- Halo / Background circle -->
+              <circle cx="60" cy="62" r="50" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5" opacity="0.95"/>
+              <!-- Ears -->
+              <polygon points="26,38 38,12 56,30" fill="url(#shibaFur_init)" stroke="#d97706" stroke-width="1.5"/>
+              <polygon points="31,34 39,18 50,29" fill="url(#shibaInnerEar_init)"/>
+              <polygon points="94,38 82,12 64,30" fill="url(#shibaFur_init)" stroke="#d97706" stroke-width="1.5"/>
+              <polygon points="89,34 81,18 70,29" fill="url(#shibaInnerEar_init)"/>
+              <!-- Chubby Face -->
+              <ellipse cx="60" cy="64" rx="42" ry="38" fill="url(#shibaFur_init)"/>
+              <!-- White muzzle & cheek patches -->
+              <path d="M30,62 C26,76 38,88 60,88 C82,88 94,76 90,62 C88,54 78,54 60,60 C42,54 32,54 30,62 Z" fill="#fffbeb"/>
+              <!-- Eyebrow dots -->
+              <ellipse cx="44" cy="45" rx="5" ry="4" fill="#fffbeb"/>
+              <ellipse cx="76" cy="45" rx="5" ry="4" fill="#fffbeb"/>
+              <!-- Eyes with double sparkles -->
+              <ellipse cx="44" cy="56" rx="6.5" ry="7.5" fill="#1e1b4b"/>
+              <ellipse cx="76" cy="56" rx="6.5" ry="7.5" fill="#1e1b4b"/>
+              <circle cx="42" cy="54" r="2.8" fill="#ffffff"/>
+              <circle cx="74" cy="54" r="2.8" fill="#ffffff"/>
+              <circle cx="46" cy="59" r="1.4" fill="#ffffff"/>
+              <circle cx="78" cy="59" r="1.4" fill="#ffffff"/>
+              <!-- Cheeks with blush lines -->
+              <ellipse cx="30" cy="67" rx="7" ry="4.5" fill="#fb7185" opacity="0.65"/>
+              <ellipse cx="90" cy="67" rx="7" ry="4.5" fill="#fb7185" opacity="0.65"/>
+              <line x1="27" y1="66" x2="33" y2="68" stroke="#f43f5e" stroke-width="1.2" stroke-linecap="round"/>
+              <line x1="87" y1="66" x2="93" y2="68" stroke="#f43f5e" stroke-width="1.2" stroke-linecap="round"/>
+              <!-- Nose -->
+              <ellipse cx="60" cy="64" rx="4.5" ry="3" fill="#1e1b4b"/>
+              <circle cx="58.5" cy="63" r="1" fill="#ffffff"/>
+              <!-- Cat ω mouth -->
+              <path d="M53,68 Q56.5,73 60,68 Q63.5,73 67,68" fill="none" stroke="#1e1b4b" stroke-width="2.2" stroke-linecap="round"/>
+              <!-- Sprout seedling on head -->
+              <path d="M60,26 Q58,16 60,6" stroke="#10b981" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <path d="M60,11 Q48,9 52,19 C56,20 60,15 60,11 Z" fill="#34d399"/>
+              <path d="M60,9 Q72,7 68,17 C64,18 60,13 60,9 Z" fill="#10b981"/>
+              <circle cx="54" cy="13" r="1.5" fill="#ffffff"/>
+              <!-- Paws with pink jelly pads -->
+              <ellipse cx="42" cy="98" rx="9" ry="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+              <ellipse cx="78" cy="98" rx="9" ry="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+              <circle cx="42" cy="98" r="4" fill="#fca5a5"/>
+              <circle cx="38" cy="93" r="2" fill="#fca5a5"/>
+              <circle cx="42" cy="91" r="2" fill="#fca5a5"/>
+              <circle cx="46" cy="93" r="2" fill="#fca5a5"/>
+              <circle cx="78" cy="98" r="4" fill="#fca5a5"/>
+              <circle cx="74" cy="93" r="2" fill="#fca5a5"/>
+              <circle cx="78" cy="91" r="2" fill="#fca5a5"/>
+              <circle cx="82" cy="93" r="2" fill="#fca5a5"/>
+              <!-- Cute Red bow tie with bell -->
+              <polygon points="52,82 68,82 60,88" fill="#ef4444"/>
+              <polygon points="52,94 68,94 60,88" fill="#ef4444"/>
+              <circle cx="60" cy="88" r="3.5" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+            </svg>
+          </div>
+
+          <!-- Cute Rank Badge Banner -->
+          <div id="rank-badge-banner" class="rank-badge-banner">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span id="rank-badge-icon" style="font-size: 1.35rem; line-height: 1;">🌱</span>
+                <div style="text-align: left;">
+                  <div id="rank-badge-level" style="font-size: 0.85rem; font-weight: 800; color: #fef08a;">Lv.1 萌新實習小韭菜</div>
+                  <div id="rank-badge-stars" style="font-size: 0.72rem; color: #fbbf24; letter-spacing: 2px;">⭐⭐☆☆☆</div>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 0.68rem; color: #94a3b8;">總報酬率</div>
+                <div id="rank-badge-rate" style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1;">+0.00%</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="mascot-quote" class="mascot-quote-box">
+            「主人早安！今天台股熱鬧滾滾，先看晨報再下單汪！」
+          </div>
+        </div>
+
+        <!-- Asset Overview -->
+        <div class="card">
+          <div class="card-title">
+            <span>💼 我的資產總覽</span>
+            <span id="win-rate-badge" style="font-size:0.75rem; color:#38bdf8;">勝率: 0%</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">總資產淨值</span>
+            <span id="stat-networth" class="stat-val text-gold">$2,000,000</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">可用現金</span>
+            <span id="stat-cash" class="stat-val">$2,000,000</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">持股現值</span>
+            <span id="stat-stock-value" class="stat-val">$0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">今日未實現損益</span>
+            <span id="stat-daily-profit" class="stat-val text-red">+$0 (+0.00%)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">累積交易稅費 (0.1425%+0.3%)</span>
+            <span id="stat-fees" class="stat-val" style="color: #94a3b8; font-size: 0.9rem;">$0</span>
+          </div>
+        </div>
+
+        <!-- Prediction Panel -->
+        <div class="card">
+          <div class="card-title">
+            <span>🎯 明日大盤多空大預測</span>
+          </div>
+          <div class="predict-box">
+            <div class="predict-title">預測明日加權指數收盤走向（猜對得 $10,000 獎金）</div>
+            <div class="predict-buttons">
+              <button id="btn-predict-up" class="btn-predict up">🚀 看漲 (多頭)</button>
+              <button id="btn-predict-down" class="btn-predict down">📉 看跌 (空頭)</button>
+            </div>
+            <div id="predict-status" style="font-size: 0.8rem; color: var(--text-sub);">尚未押注</div>
+          </div>
+
+          <button id="btn-advance-day" class="btn-advance-day">
+            <span>進入下一個交易日</span> ⏩
+          </button>
+        </div>
+
+        <!-- Index Trend Chart Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>📈 加權指數即時走勢圖</span>
+            <span id="chart-index-val" class="text-red" style="font-size: 0.85rem; font-weight: 800;">22,850 點</span>
+          </div>
+          <div style="position: relative; width: 100%; height: 180px; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--border-color); padding: 8px 6px;">
+            <canvas id="index-chart" style="width: 100%; height: 100%; display: block;"></canvas>
+            <div id="chart-tooltip" style="position: absolute; display: none; background: rgba(15, 23, 42, 0.95); border: 1px solid #38bdf8; color: #f8fafc; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; pointer-events: none; white-space: nowrap; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.5);"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-sub); margin-top: 8px;">
+            <span>歷史天數軌跡</span>
+            <span>台股加權指數 (TWSE)</span>
+          </div>
+        </div>
+
+        <!-- News Feed -->
+        <div class="card">
+          <div class="card-title">
+            <span>📰 今日台股晨間快報</span>
+          </div>
+          <div id="news-container" class="news-list">
+            <!-- Dynamic News will be inserted here -->
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Main: Trading Desk & Portfolio -->
+      <main>
+        <!-- IPO Lottery Banner -->
+        <div class="lottery-banner" style="background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.15)); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 10px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.4rem;">🎟️</span>
+            <div>
+              <div style="font-weight: bold; color: #fef08a; font-size: 0.95rem;">
+                證交所新股公開申購中心（股票樂透）
+                <span id="lottery-status-badge" style="background: #ef4444; color: white; padding: 1px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 4px;">開放申購中</span>
+              </div>
+              <div style="color: #cbd5e1; font-size: 0.8rem; margin-top: 2px;">
+                超甜折價抽新飆股！中籤現賺數萬元！沒抽中全額退回預扣股款（僅扣 20 元處理費）汪！
+              </div>
+            </div>
+          </div>
+          <button id="btn-open-lottery-banner" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; border: none; font-weight: 700; font-size: 0.85rem; padding: 8px 16px; border-radius: 8px; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); transition: all 0.2s;">
+            前往抽籤 ➔
+          </button>
+        </div>
+
+        <!-- My Portfolio Card -->
+        <div class="card portfolio-card">
+          <div class="card-title">
+            <span>💼 我的持倉庫存明細與即時損益</span>
+            <span id="portfolio-summary-text" style="font-size: 0.8rem; color: #38bdf8;">持股 0 檔</span>
+          </div>
+          <div id="portfolio-container" class="portfolio-table-wrap">
+            <!-- Dynamic portfolio table rendered here -->
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>🛒 萌寵號子下單台 (精選 12 檔代表性台股)</span>
+            <span style="font-size: 0.78rem; color: var(--text-sub);">單位：1 張 (1,000 股)</span>
+          </div>
+
+          <!-- Category Filter Tabs -->
+          <div class="market-tabs">
+            <button class="tab-btn active" data-filter="all">全部標的 (12)</button>
+            <button class="tab-btn" data-filter="semi">半導體權值</button>
+            <button class="tab-btn" data-filter="ai">AI 伺服器代工</button>
+            <button class="tab-btn" data-filter="trad">傳產與金融</button>
+            <button class="tab-btn" data-filter="etf">熱門話題 ETF</button>
+          </div>
+
+          <!-- Stocks Grid -->
+          <div id="stock-container" class="stock-grid">
+            <!-- Dynamic Stocks will be inserted here -->
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Settlement Modal -->
+    <div id="settle-modal" class="modal-backdrop">
+      <div class="modal-box">
+        <div id="settle-art" class="modal-img"></div>
+        <div id="settle-title" class="modal-title">第 2 天收盤結算</div>
+        <div id="settle-desc" class="modal-desc">收盤結算內容</div>
+        <div class="modal-stats" id="settle-stats"></div>
+        <button id="btn-settle-close" class="btn-modal btn-primary">開始今日操作！汪！</button>
+      </div>
+    </div>
+
+    <!-- Bankruptcy Modal -->
+    <div id="bankruptcy-modal" class="modal-backdrop">
+      <div class="modal-box" style="border: 2px solid #ef4444;">
+        <div class="modal-img">
+          <!-- Cardboard Box Homeless Shiba -->
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <!-- Cardboard box -->
+            <rect x="15" y="45" width="70" height="50" fill="#b45309" stroke="#78350f" stroke-width="2"/>
+            <text x="50" y="65" font-size="7" font-weight="bold" fill="#fef3c7" text-anchor="middle">台北車站 M8 出口</text>
+            <text x="50" y="78" font-size="6" fill="#fef3c7" text-anchor="middle">求好心人投餵肉骨頭</text>
+            <!-- Dog crying inside box -->
+            <circle cx="50" cy="35" r="24" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+            <!-- Leek on head -->
+            <line x1="50" y1="12" x2="50" y2="4" stroke="#10b981" stroke-width="3"/>
+            <circle cx="50" cy="3" r="3" fill="#10b981"/>
+            <!-- Teary eyes -->
+            <ellipse cx="40" cy="33" rx="4" ry="5" fill="#0f172a"/>
+            <ellipse cx="60" cy="33" rx="4" ry="5" fill="#0f172a"/>
+            <circle cx="39" cy="40" r="3" fill="#38bdf8"/>
+            <circle cx="61" cy="40" r="3" fill="#38bdf8"/>
+            <!-- Sad Mouth -->
+            <path d="M44,43 Q50,38 56,43" fill="none" stroke="#0f172a" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="modal-title text-red">🚨 斷頭警報！你被外資大戶割韭菜宣告破產！</div>
+        <div class="modal-desc">
+          波比特助已經幫你在台北車站 M8 出口搶佔特等紙箱席位。<br>
+          「投資理財有賺有賠，申購前請先確認阿嬤還有沒有養老金汪...」
+        </div>
+        <button id="btn-grandma-help" class="btn-modal btn-warning">👵 抱阿嬤大腿領急難救助金 (+$500,000)</button>
+        <button id="btn-restart-game" class="btn-modal btn-danger">🔄 投胎轉世，重啟股神之路 (重設 $1,000,000)</button>
+      </div>
+    </div>
+
+    <!-- Capital Setting Modal -->
+    <div id="capital-modal" class="modal-backdrop">
+      <div class="modal-box">
+        <div class="modal-title">💰 選擇／設定你的初始起手資金</div>
+        <div class="modal-desc">
+          選擇不同資金規模進行體驗！預設 <b>$2,000,000</b> 就能直接買進護國神山台積電囉汪！
+        </div>
+
+        <div class="capital-presets">
+          <div class="preset-btn" data-amount="500000">
+            <b>$500,000</b>
+            <small>🥉 小資存股體驗 (ETF為主)</small>
+          </div>
+          <div class="preset-btn selected" data-amount="2000000">
+            <b>$2,000,000</b>
+            <small>🥈 標準散戶 (可買 1~2 張台積電)</small>
+          </div>
+          <div class="preset-btn" data-amount="5000000">
+            <b>$5,000,000</b>
+            <small>🥇 主力操盤手 (半導體+AI多檔配置)</small>
+          </div>
+          <div class="preset-btn" data-amount="10000000">
+            <b>$10,000,000</b>
+            <small>💎 外資超級巨鯨 (全市場橫掃)</small>
+          </div>
+        </div>
+
+        <div class="custom-capital-box">
+          <label>或輸入自訂起步資金金額（元）：</label>
+          <input type="number" id="input-custom-capital" class="custom-capital-input" placeholder="例如：3000000" min="50000" step="10000">
+        </div>
+
+        <button id="btn-confirm-capital" class="btn-modal btn-primary">確認資金並重新開局！汪！</button>
+        <button id="btn-cancel-capital" class="btn-modal" style="background: transparent; color: var(--text-sub); margin-top: 4px;">取消</button>
+      </div>
+    </div>
+
+    <!-- Stock IPO Lottery Modal -->
+    <div id="lottery-modal" class="modal-backdrop" style="z-index: 120;">
+      <div class="modal-box" style="max-width: 620px; text-align: left; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.6rem;">🎟️</span>
+            <div>
+              <h3 style="font-size: 1.2rem; color: #f8fafc; margin: 0;">證交所新股公開申購中心（股票樂透）</h3>
+              <p style="font-size: 0.75rem; color: var(--text-sub); margin: 2px 0 0 0;">比照真實台股申購機制：承銷甜甜價抽新股，沒中退回預扣股款（僅扣 20 元處理費）汪！</p>
+            </div>
+          </div>
+          <button id="btn-close-lottery" style="background: transparent; border: none; color: #94a3b8; font-size: 1.6rem; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+
+        <!-- Active Lottery Offerings List -->
+        <div id="lottery-offerings-container" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Dynamic Lottery Items -->
+        </div>
+
+        <div style="margin-top: 16px; padding: 10px 12px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; font-size: 0.75rem; color: #94a3b8; line-height: 1.4;">
+          💡 <b>抽籤開獎規則須知：</b><br>
+          • 點擊參加申購後將自可用現金預扣「全額承銷股款 + 20 元郵寄處理費」。<br>
+          • 點擊「推進到下一交易日」時將由證交所電腦公開抽籤搖珠揭曉！<br>
+          • <b>🎉 若幸運中籤：</b>新股票將直接以超低承銷價撥入您的持股庫存，享受蜜月飆漲價差！<br>
+          • <b>😭 若未中籤：</b>全額預扣股款將自動退還至您的可用現金（僅扣除 20 元手續費）。
+        </div>
+      </div>
+    </div>
+
+    <!-- Lottery Win Celebration Modal -->
+    <div id="lottery-win-modal" class="modal-backdrop" style="z-index: 160;">
+      <div class="modal-box" style="border: 2px solid #f59e0b; max-width: 500px; text-align: center;">
+        <div class="modal-img" style="width: 140px; height: 140px;">
+          <!-- Dog celebrating with lottery certificate and golden medal -->
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <circle cx="50" cy="50" r="45" fill="#fde68a" stroke="#f59e0b" stroke-width="3"/>
+            <!-- Confetti -->
+            <circle cx="20" cy="20" r="3" fill="#ef4444"/>
+            <circle cx="80" cy="25" r="3.5" fill="#3b82f6"/>
+            <circle cx="85" cy="70" r="3" fill="#10b981"/>
+            <circle cx="15" cy="75" r="3.5" fill="#f59e0b"/>
+            <!-- Golden Medal -->
+            <circle cx="50" cy="24" r="12" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+            <text x="50" y="28" font-size="8" font-weight="bold" fill="#78350f" text-anchor="middle">中籤</text>
+            <!-- Dog Smiling with Sunglasses -->
+            <polygon points="22,44 48,44 44,57 26,57" fill="#0f172a"/>
+            <polygon points="52,44 78,44 74,57 56,57" fill="#0f172a"/>
+            <line x1="48" y1="48" x2="52" y2="48" stroke="#0f172a" stroke-width="3"/>
+            <path d="M40,65 Q50,82 60,65 Z" fill="#ef4444"/>
+            <!-- Gold bone -->
+            <rect x="36" y="77" width="28" height="6" rx="3" fill="#f59e0b"/>
+            <circle cx="36" cy="80" r="4" fill="#f59e0b"/>
+            <circle cx="64" cy="80" r="4" fill="#f59e0b"/>
+          </svg>
+        </div>
+        <div id="lottery-win-title" class="modal-title" style="color: #fbbf24;">🎉 狂賀！天降大禮！您中籤啦！</div>
+        <div id="lottery-win-desc" class="modal-desc" style="color: #f8fafc; font-size: 0.95rem; margin: 8px 0;">
+          恭喜幸運抽中新股！現賺超肥潛在價差紅包！
+        </div>
+        <div class="modal-stats" id="lottery-win-stats"></div>
+        <button id="btn-lottery-win-close" class="btn-modal btn-primary" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; font-weight: bold;">
+          🚀 領取新股撥券入庫！今晚加菜吃牛排汪！
+        </button>
+      </div>
+    </div>
+
+    <!-- Delisting / Wallpaper Modal -->
+    <div id="delist-modal" class="modal-backdrop" style="z-index: 150;">
+      <div class="modal-box" style="border: 2px solid #ef4444; max-width: 520px;">
+        <div class="modal-img" style="width: 140px; height: 140px;">
+          <!-- Crying Dog with Wallpaper and Stock Certificates -->
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <!-- Brick wall background -->
+            <rect x="5" y="10" width="90" height="80" fill="#334155" rx="6"/>
+            <line x1="5" y1="36" x2="95" y2="36" stroke="#1e293b" stroke-width="2"/>
+            <line x1="5" y1="62" x2="95" y2="62" stroke="#1e293b" stroke-width="2"/>
+            <!-- Wallpaper Stock Certs on wall -->
+            <g transform="rotate(-6, 28, 22)">
+              <rect x="14" y="15" width="28" height="14" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5" rx="2"/>
+              <text x="28" y="24" font-size="4" font-weight="bold" fill="#713f12" text-anchor="middle">股票憑證(廢紙)</text>
+            </g>
+            <g transform="rotate(8, 72, 48)">
+              <rect x="58" y="42" width="28" height="14" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5" rx="2"/>
+              <text x="72" y="51" font-size="4" font-weight="bold" fill="#14532d" text-anchor="middle">100%純手工壁紙</text>
+            </g>
+            <!-- Dog weeping -->
+            <circle cx="50" cy="62" r="21" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+            <ellipse cx="42" cy="58" rx="3.5" ry="4.5" fill="#0f172a"/>
+            <ellipse cx="58" cy="58" rx="3.5" ry="4.5" fill="#0f172a"/>
+            <circle cx="41" cy="65" r="3" fill="#38bdf8"/>
+            <circle cx="59" cy="65" r="3" fill="#38bdf8"/>
+            <path d="M44,70 Q50,65 56,70" fill="none" stroke="#0f172a" stroke-width="2"/>
+            <!-- Stamp -->
+            <rect x="22" y="80" width="56" height="12" fill="#ef4444" rx="3"/>
+            <text x="50" y="88.5" font-size="6" font-weight="bold" fill="#fff" text-anchor="middle">⛔ 勒令終止下市</text>
+          </svg>
+        </div>
+        <div id="delist-modal-title" class="modal-title text-red">🚨 驚爆核彈地雷！公司勒令下市變壁紙！</div>
+        <div id="delist-modal-desc" class="modal-desc">
+          股票已正式登出台股伺服器！
+        </div>
+        <div class="modal-stats" id="delist-modal-stats"></div>
+        <button id="btn-delist-close" class="btn-modal btn-danger">😭 含淚擦乾眼淚，繼續在股海奮鬥汪！</button>
+      </div>
+    </div>
+
+    <footer>
+      <p>💡 本遊戲為生成式 AI 作業展示專用，所有股價與新聞純屬模擬，不代表真實投資建議。</p>
+      <p>Designed with ❤️ via 100% Vibe Coding | 柴犬特助 Bobby</p>
+    </footer>
+  </div>
+
+  <script>
+    /* ==========================================================
+       1. DATA DEFINITIONS (STOCKS, NEWS, SOUNDS)
+       ========================================================== */
+    const INITIAL_STOCKS = [
+      { id: '2330', name: '台積電', cat: 'semi', catName: '半導體權值', price: 1025, basePrice: 1025, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false },
+      { id: '2454', name: '聯發科', cat: 'semi', catName: '半導體權值', price: 1280, basePrice: 1280, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false },
+      { id: '2317', name: '鴻海',   cat: 'ai',   catName: 'AI 伺服器代工', price: 212, basePrice: 212, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false },
+      { id: '2382', name: '廣達',   cat: 'ai',   catName: 'AI 伺服器代工', price: 318, basePrice: 318, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false },
+      { id: '3231', name: '緯創',   cat: 'ai',   catName: 'AI 伺服器代工', price: 116, basePrice: 116, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false },
+      { id: '2603', name: '長榮',   cat: 'trad', catName: '傳產航運', price: 194, basePrice: 194, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false },
+      { id: '2881', name: '富邦金', cat: 'trad', catName: '金融龍頭', price: 91.5, basePrice: 91.5, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false },
+      { id: '2882', name: '國泰金', cat: 'trad', catName: '金融保險', price: 66.8, basePrice: 66.8, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false },
+      { id: '0050', name: '元大台灣50', cat: 'etf', catName: '大盤連動ETF', price: 186.5, basePrice: 186.5, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false },
+      { id: '0056', name: '元大高股息', cat: 'etf', catName: '老牌高股息', price: 38.6, basePrice: 38.6, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false },
+      { id: '00878', name: '國泰永續高息', cat: 'etf', catName: '人氣存股ETF', price: 22.8, basePrice: 22.8, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false },
+      { id: '00940', name: '元大台灣價值', cat: 'etf', catName: '話題月配息', price: 9.75, basePrice: 9.75, change: 0, hold: 0, totalCost: 0, shortHold: 0, shortCost: 0, shortMargin: 0, delisted: false }
+    ];
+
+    const IPO_CANDIDATES = [
+      { id: '2303', name: '聯電', cat: 'semi', catName: '半導體權值', price: 52.5, basePrice: 52.5, shortHold: 0, shortCost: 0, shortMargin: 0 },
+      { id: '2376', name: '技嘉', cat: 'ai', catName: 'AI 伺服器代工', price: 295.0, basePrice: 295.0, shortHold: 0, shortCost: 0, shortMargin: 0 },
+      { id: '2609', name: '陽明', cat: 'trad', catName: '傳產航運', price: 68.0, basePrice: 68.0, shortHold: 0, shortCost: 0, shortMargin: 0 },
+      { id: '2885', name: '元大金', cat: 'trad', catName: '金融證券', price: 32.5, basePrice: 32.5, shortHold: 0, shortCost: 0, shortMargin: 0 },
+      { id: '3037', name: '欣興', cat: 'ai', catName: 'AI 伺服器代工', price: 168.0, basePrice: 168.0, shortHold: 0, shortCost: 0, shortMargin: 0 },
+      { id: '2357', name: '華碩', cat: 'ai', catName: 'AI 伺服器代工', price: 540.0, basePrice: 540.0, shortHold: 0, shortCost: 0, shortMargin: 0 },
+      { id: '2891', name: '中信金', cat: 'trad', catName: '金融龍頭', price: 36.2, basePrice: 36.2, shortHold: 0, shortCost: 0, shortMargin: 0 },
+      { id: '2002', name: '中鋼', cat: 'trad', catName: '傳產鋼鐵', price: 23.5, basePrice: 23.5, shortHold: 0, shortCost: 0, shortMargin: 0 }
+    ];
+
+    const LOTTERY_POOL = [
+      { id: '6999', name: '神柴科技', cat: 'ai', catName: 'AI 晶片先進封裝', subPrice: 120, estPrice: 195, rate: 0.15, desc: '台積電 CoWoS 核心供應鏈，外資重申買進，預估上市蜜月期大噴發！' },
+      { id: '7788', name: '韭菜生醫', cat: 'trad', catName: '生技新藥', subPrice: 48, estPrice: 85, rate: 0.18, desc: '全台首創「抗套牢抗焦慮」專利新藥，獲美國 FDA 快速審查資格！' },
+      { id: '6888', name: '巨神水冷散熱', cat: 'ai', catName: 'AI 伺服器散熱', subPrice: 280, estPrice: 430, rate: 0.10, desc: '輝達 GB200 旗艦水冷模組供應商，在手天量訂單排隊至後年！' },
+      { id: '3555', name: '柴犬太空通訊', cat: 'semi', catName: '低軌衛星航太', subPrice: 85, estPrice: 142, rate: 0.12, desc: '發射低軌衛星直接傳輸台股逐筆撮合報價，全球極速零時差連線！' },
+      { id: '2899', name: '金狗財富證券', cat: 'trad', catName: '金融保險', subPrice: 26, estPrice: 42, rate: 0.20, desc: '主打終身一折手續費的新世代網路券商，年輕散戶開戶數破百萬！' },
+      { id: '6677', name: '超能綠能儲能', cat: 'trad', catName: '綠能環保', subPrice: 62, estPrice: 108, rate: 0.15, desc: 'AI 算力中心爆發用電荒！巨型綠能電網與儲能案場接單全面滿載！' }
+    ];
+
+    function pickRandomLotteries() {
+      const shuffled = [...LOTTERY_POOL].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, 2);
+    }
+
+    const NEWS_POOL = [
+      // 科技與多頭題材 (Bullish & Tech Momentum)
+      { tag: 'tag-tech', type: 'AI 趨勢', title: '輝達（NVIDIA）財報超乎預期！台系 AI 供應鏈動能強勁！', effect: { '2330': 0.035, '2382': 0.045, 'ai': 0.03 } },
+      { tag: 'tag-bull', type: '外資熱錢', title: '外資大舉回補台股大買 300 億！權值股點火，大盤氣勢如虹！', effect: { 'twse': 0.02, '0050': 0.025, '2330': 0.028 } },
+      { tag: 'tag-bull', type: '航海王搶艙', title: '歐美感恩節與聖誕搶艙潮爆發！長榮海運美西線滿艙，運價調漲！', effect: { '2603': 0.055, 'trad': 0.02 } },
+      { tag: 'tag-tech', type: 'IC 設計', title: '聯發科旗艦晶片跑分輾壓競品！外資重申強烈買進評等！', effect: { '2454': 0.045, 'semi': 0.025 } },
+      { tag: 'tag-bull', type: '存股熱潮', title: '百萬股民最愛！高股息 ETF 配息創新高，年化殖利率破 10%！', effect: { '00878': 0.025, '0056': 0.025, 'etf': 0.018 } },
+      { tag: 'tag-bull', type: '伺服器代工', title: '鴻海、廣達奪下最新 GB200 超級伺服器天量訂單，營收可期！', effect: { '2317': 0.048, '2382': 0.052, 'ai': 0.03 } },
+      { tag: 'tag-bull', type: '除權息大秀', title: '富邦金、國泰金股利創近年新高，買盤狂湧卡位除權息行情！', effect: { '2881': 0.035, '2882': 0.032, 'trad': 0.02 } },
+      { tag: 'tag-bull', type: '神山製程', title: '台積電 2 奈米試產良率破天荒！蘋果高通搶包產能，目標價再獲上調！', effect: { '2330': 0.042, '0050': 0.03, 'semi': 0.025 } },
+      { tag: 'tag-bull', type: '主力軋空', title: '券資比衝破 40%！主力強勢鎖漲停引發瘋狂軋空，放空散戶遭斷頭！', effect: { '3231': 0.065, '2382': 0.05, 'ai': 0.035 } },
+      { tag: 'tag-bull', type: '央行降息', title: '聯準會意外宣布降息兩碼！熱錢瘋狂湧向亞洲股市，台股全面噴出！', effect: { 'twse': 0.022, 'all': 0.02 } },
+      { tag: 'tag-tech', type: '雲端算力', title: '微軟與谷歌大舉擴建 AI 資料中心！台系伺服器供應鏈受惠，訂單能見度高！', effect: { 'twse': 0.018, 'ai': 0.035, '2382': 0.04 } },
+      { tag: 'tag-bull', type: '內需熱絡', title: '購物節與年終獎金採購潮發酵！航運、內需與傳產消費業績亮眼，買盤積極敲進！', effect: { 'twse': 0.016, 'trad': 0.03, '2603': 0.035 } },
+      { tag: 'tag-bull', type: '投信作帳', title: '內資投信季底作帳積極進場！中小型績優飆股發動點火，多頭士氣大振！', effect: { 'twse': 0.02, 'all': 0.022 } },
+
+      // 空頭、洗盤、放空與黑天鵝題材 (Bearish & Correction Pressure)
+      { tag: 'tag-bear', type: '利多出盡', title: '台積電法說會展望亮眼但「利多出盡」，外資主力趁高倒貨，爆量走低！', effect: { '2330': -0.035, 'twse': -0.015 } },
+      { tag: 'tag-bear', type: '外資大倒貨', title: '外資單日提款 350 億！台幣走貶，權值股遭遇波段調節賣壓！', effect: { 'twse': -0.022, '2330': -0.03, '0050': -0.025 } },
+      { tag: 'tag-bear', type: '多殺多斷頭', title: '散戶融資維持率跌破警戒線！追繳令引爆，中小型個股面臨短線拋售！', effect: { 'ai': -0.045, '3231': -0.055, '2382': -0.045 } },
+      { tag: 'tag-bear', type: '空軍大集結', title: '【空軍狙擊】大盤破月線形成空頭排列！融券借券天量湧現，空方大獲全勝！', effect: { 'twse': -0.02, 'all': -0.022 } },
+      { tag: 'tag-bear', type: '黑天鵝事件', title: '地緣政治危機惡化！國際油價走揚，美股下挫引發亞股避險賣盤！', effect: { 'twse': -0.026, 'all': -0.028 } },
+      { tag: 'tag-bear', type: '航海王觸礁', title: 'SCFI 貨櫃運價指數跳水暴跌！長榮海運湧現法人機構失望性拋售！', effect: { '2603': -0.05, 'trad': -0.018 } },
+      { tag: 'tag-bear', type: '晶片砍單', title: '消費性晶片庫存去化不如預期，傳出大客戶砍單，聯發科面臨修正！', effect: { '2454': -0.045, 'semi': -0.02 } },
+      { tag: 'tag-bear', type: 'ETF 自救會', title: '熱門 ETF 跌破發行價引發散戶退場潮，成分股遭投信連續砍倉減碼！', effect: { '00940': -0.03, '00878': -0.018, '2881': -0.018 } },
+      { tag: 'tag-bear', type: '假突破陷阱', title: '早盤急拉 200 點誘多吸引散戶追高，午盤大單灌破引發多頭自相殘殺！', effect: { 'twse': -0.018, 'ai': -0.03 } },
+      { tag: 'tag-bear', type: '通膨死灰復燃', title: '最新核心通膨數據超標，聯準會轉鷹恐延後降息，外資提款避險！', effect: { 'twse': -0.015, 'trad': -0.02 } },
+      { tag: 'tag-bear', type: '海外暴雷', title: '國外避險基金傳出爆倉破產，流動性危機蔓延，金融股沉重承壓！', effect: { '2881': -0.035, '2882': -0.032, 'twse': -0.018 } },
+      { tag: 'tag-bear', type: '下市暴雷', title: '【核彈暴雷】某上市公司突遭檢調突襲搜索掏空！證交所火速勒令即日起終止上市變壁紙！', isDelistTrigger: true },
+      { tag: 'tag-bear', type: '瀕臨下市', title: '【地雷警報】某公司每股淨值跌破警戒線遭打入全額交割！散戶奪門大逃殺，恐隨時下市！', effect: { 'twse': -0.015 } }
+    ];
+
+    /* ==========================================================
+       2. WEB AUDIO API SYNTHESIZER (Lo-Fi BGM & Sound FX)
+       ========================================================== */
+    class AudioSystem {
+      constructor() {
+        this.ctx = null;
+        this.bgmPlaying = false;
+        this.timer = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(freq, duration = 0.15, type = 'sine', gainVal = 0.08) {
+        if (this.muted) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+      }
+
+      // Sound FX
+      playBuy() {
+        this.playTone(523.25, 0.1, 'sine', 0.1); // C5
+        setTimeout(() => this.playTone(659.25, 0.15, 'sine', 0.1), 80); // E5
+      }
+
+      playSell() {
+        this.playTone(659.25, 0.1, 'sine', 0.1); // E5
+        setTimeout(() => this.playTone(523.25, 0.15, 'sine', 0.1), 80); // C5
+      }
+
+      playWin() {
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+          setTimeout(() => this.playTone(freq, 0.2, 'triangle', 0.12), i * 110);
+        });
+      }
+
+      playLose() {
+        [400, 370, 340, 280].forEach((freq, i) => {
+          setTimeout(() => this.playTone(freq, 0.22, 'sawtooth', 0.08), i * 130);
+        });
+      }
+
+      playBankruptcy() {
+        [300, 260, 220, 160].forEach((freq, i) => {
+          setTimeout(() => this.playTone(freq, 0.4, 'sawtooth', 0.12), i * 200);
+        });
+      }
+
+      playDelist() {
+        if (this.muted) return;
+        this.init();
+        // Comical sad wobble slide whistle
+        const notes = [480, 440, 390, 330, 260, 190, 120];
+        notes.forEach((freq, i) => {
+          setTimeout(() => {
+            this.playTone(freq, 0.28, 'sawtooth', 0.14);
+          }, i * 150);
+        });
+      }
+
+      // Procedural Lo-Fi BGM Looper
+      toggleBgm() {
+        this.init();
+        this.muted = !this.muted;
+        if (!this.muted) {
+          this.startBgmLoop();
+          return true;
+        } else {
+          this.stopBgmLoop();
+          return false;
+        }
+      }
+
+      startBgmLoop() {
+        if (this.bgmPlaying || this.muted) return;
+        this.bgmPlaying = true;
+        const chords = [
+          [261.63, 329.63, 392.00], // C
+          [220.00, 261.63, 329.63], // Am
+          [174.61, 220.00, 261.63], // F
+          [196.00, 246.94, 293.66]  // G
+        ];
+        let step = 0;
+
+        const loop = () => {
+          if (!this.bgmPlaying || this.muted) return;
+          const chord = chords[step % chords.length];
+          chord.forEach((freq, idx) => {
+            setTimeout(() => {
+              if (this.bgmPlaying && !this.muted) {
+                this.playTone(freq * 1.5, 0.4, 'sine', 0.02);
+              }
+            }, idx * 280);
+          });
+          step++;
+          this.timer = setTimeout(loop, 1200);
+        };
+        loop();
+      }
+
+      stopBgmLoop() {
+        this.bgmPlaying = false;
+        if (this.timer) clearTimeout(this.timer);
+      }
+    }
+
+    const sound = new AudioSystem();
+
+    const DEFAULT_INDEX_HISTORY = [
+      { day: -3, index: 22610 },
+      { day: -2, index: 22520 },
+      { day: -1, index: 22710 },
+      { day: 0,  index: 22760 },
+      { day: 1,  index: 22850 }
+    ];
+
+    /* ==========================================================
+       3. GAME STATE
+       ========================================================== */
+    let gameState = {
+      day: 1,
+      twseIndex: 22850,
+      twseChange: 0,
+      cash: 2000000,
+      initialCapital: 2000000,
+      stocks: JSON.parse(JSON.stringify(INITIAL_STOCKS)),
+      todaysNews: [],
+      prediction: null, // 'up' | 'down' | null
+      correctPredictions: 0,
+      totalPredictions: 0,
+      activeFilter: 'all',
+      marketSentiment: '⚖️ 高檔震盪洗盤',
+      fearGreed: 50,
+      totalFeesPaid: 0,
+      hasDelistedOccurred: false,
+      delistCount: 0,
+      delistedHistory: [],
+      activeLotteries: pickRandomLotteries(),
+      myLotteryEntries: [],
+      indexHistory: JSON.parse(JSON.stringify(DEFAULT_INDEX_HISTORY))
+    };
+
+    /* ==========================================================
+       4. LOCALSTORAGE REPOSITORY
+       ========================================================== */
+    function saveState() {
+      localStorage.setItem('shiba_stock_save', JSON.stringify(gameState));
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem('shiba_stock_save');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.stocks) {
+            parsed.stocks.forEach(s => {
+              if (s.hold > 0 && (s.totalCost === undefined || isNaN(s.totalCost))) {
+                s.totalCost = s.hold * s.price * 1000;
+              } else if (!s.totalCost) {
+                s.totalCost = 0;
+              }
+              if (s.shortHold === undefined) s.shortHold = 0;
+              if (s.shortCost === undefined) s.shortCost = 0;
+              if (s.shortMargin === undefined) s.shortMargin = 0;
+            });
+          }
+          if (!parsed.marketSentiment) parsed.marketSentiment = '⚖️ 高檔震盪洗盤';
+          if (!parsed.fearGreed) parsed.fearGreed = 50;
+          if (parsed.totalFeesPaid === undefined) parsed.totalFeesPaid = 0;
+
+          // Delist lock restoration
+          if (!parsed.delistedHistory) parsed.delistedHistory = [];
+          if (parsed.stocks && parsed.stocks.some(s => s.delisted)) {
+            parsed.stocks.filter(s => s.delisted).forEach(s => {
+              if (!parsed.delistedHistory.includes(s.id)) parsed.delistedHistory.push(s.id);
+            });
+          }
+          if (parsed.hasDelistedOccurred || parsed.delistedHistory.length > 0 || (parsed.delistCount && parsed.delistCount > 0)) {
+            parsed.hasDelistedOccurred = true;
+            parsed.delistCount = 1;
+          } else {
+            parsed.hasDelistedOccurred = false;
+            parsed.delistCount = 0;
+          }
+
+          // Sanitize old saves: no delist news before Day 6
+          if (parsed.day < 6 && parsed.todaysNews) {
+            parsed.todaysNews = parsed.todaysNews.filter(n => !n.isDelistTrigger);
+          }
+
+          if (!parsed.activeLotteries || parsed.activeLotteries.length === 0) {
+            parsed.activeLotteries = pickRandomLotteries();
+          }
+          if (!parsed.myLotteryEntries) {
+            parsed.myLotteryEntries = [];
+          }
+          if (!parsed.indexHistory || parsed.indexHistory.length === 0) {
+            parsed.indexHistory = JSON.parse(JSON.stringify(DEFAULT_INDEX_HISTORY));
+          }
+          gameState = parsed;
+        } catch (e) {
+          console.error("無法載入存檔，重置為初始狀態", e);
+        }
+      }
+    }
+
+    /* ==========================================================
+       5. CORE GAME LOGIC
+       ========================================================== */
+    function isDelistLocked() {
+      if (gameState.hasDelistedOccurred) return true;
+      if (gameState.delistCount && gameState.delistCount > 0) return true;
+      if (gameState.delistedHistory && gameState.delistedHistory.length > 0) return true;
+      if (gameState.stocks && gameState.stocks.some(s => s.delisted)) return true;
+      return false;
+    }
+
+    function rollDailyNews() {
+      // Pacing: strictly exclude delist trigger news if before Day 6 OR if a delisting has already occurred
+      const canDelistNews = gameState.day >= 6 && !isDelistLocked();
+      const pool = canDelistNews ? NEWS_POOL : NEWS_POOL.filter(n => !n.isDelistTrigger);
+      const shuffled = [...pool].sort(() => 0.5 - Math.random());
+      gameState.todaysNews = shuffled.slice(0, 3);
+    }
+
+    function calculateNetWorth() {
+      const longVal = gameState.stocks.reduce((sum, s) => sum + (s.hold * s.price * 1000), 0);
+      const shortVal = gameState.stocks.reduce((sum, s) => {
+        if (!s.shortHold || s.shortHold <= 0) return sum;
+        const shortProfit = (s.shortCost || 0) - (s.shortHold * s.price * 1000);
+        const marginDeposit = s.shortMargin || ((s.shortCost || 0) * 0.9);
+        return sum + marginDeposit + shortProfit;
+      }, 0);
+      return gameState.cash + longVal + shortVal;
+    }
+
+    function updateTitleAndMascot() {
+      const netWorth = calculateNetWorth();
+      const returnRate = ((netWorth - gameState.initialCapital) / gameState.initialCapital) * 100;
+      let title = '🌱 實習小韭菜';
+      let quote = '「今天先穩扎穩打，算好手續費看準新聞再下單汪！」';
+      let mood = 'normal';
+      let rankIcon = '🌱';
+      let rankLevel = 'Lv.1 萌新實習小韭菜';
+      let rankStars = '⭐⭐☆☆☆';
+
+      const hasShorts = gameState.stocks.some(s => (s.shortHold || 0) > 0);
+
+      if (returnRate >= 50) {
+        if (hasShorts) {
+          title = '🦅 傳奇空頭大梟雄';
+          rankIcon = '🦅';
+          rankLevel = 'Lv.MAX 傳奇空頭梟雄';
+          rankStars = '⭐⭐⭐⭐⭐';
+          quote = '「空頭排列大獲全勝！波比看著滿手融券大賺，今晚吃頂級和牛大餐汪！」';
+          mood = 'legend_short';
+        } else {
+          title = '👑 護國神柴股神';
+          rankIcon = '👑';
+          rankLevel = 'Lv.MAX 護國神柴股神';
+          rankStars = '⭐⭐⭐⭐⭐';
+          quote = '「太猛啦！逆勢抓到主升段飆股，今晚請全村吃頂級戰斧牛排！汪汪！」';
+          mood = 'god';
+        }
+      } else if (returnRate >= 20) {
+        if (hasShorts) {
+          title = '📉 避險放空大師';
+          rankIcon = '🦅';
+          rankLevel = 'Lv.3 避險放空大師';
+          rankStars = '⭐⭐⭐⭐☆';
+          quote = '「大盤重挫你卻反手融券賺爛！這波教科書空頭操作太神啦汪！」';
+          mood = 'pro_short';
+        } else {
+          title = '🚀 飛天少年股神';
+          rankIcon = '🚀';
+          rankLevel = 'Lv.3 飛天少年股神';
+          rankStars = '⭐⭐⭐⭐☆';
+          quote = '「抓到主力抬轎大波段！主人簡直是內湖巴菲特汪！」';
+          mood = 'happy';
+        }
+      } else if (returnRate >= 5) {
+        title = '🐾 潛力柴柴操盤手';
+        rankIcon = '🐾';
+        rankLevel = 'Lv.2 潛力柴柴操盤手';
+        rankStars = '⭐⭐⭐☆☆';
+        quote = '「賺點小錢買肉肉罐罐！波比覺得今天的盤勢很有搞頭汪！」';
+        mood = 'cheerful';
+      } else if (returnRate <= -50) {
+        title = '📦 台北車站紙箱大師';
+        rankIcon = '📦';
+        rankLevel = 'Lv.Danger 紙箱大師';
+        rankStars = '💀💀💀💀💀';
+        quote = hasShorts ? '「啊啊啊！大盤爆量軋空大噴出！空頭被逼到懸崖邊快要被軋斷頭啦汪！」' : '「啊啊啊！大戶主力瘋狂倒貨！再賠下去真的要去台北車站搶紙箱了汪！」';
+        mood = 'bankrupt';
+      } else if (returnRate <= -30) {
+        title = '🥬 重度套牢韭菜';
+        rankIcon = '🥬';
+        rankLevel = 'Lv.Warning 重度套牢韭菜';
+        rankStars = '💔☆☆☆☆';
+        quote = '「嗚嗚嗚！為什麼做多就跌、做空就噴啦汪...肉骨頭快被當掉了！」';
+        mood = 'sad';
+      } else if (returnRate <= -12) {
+        title = '🍃 綠油油小套牢';
+        rankIcon = '🍃';
+        rankLevel = 'Lv.0 綠油油小套牢';
+        rankStars = '⭐☆☆☆☆';
+        quote = '「不要怕！跌下來可以融券做空，漲上去可以現股做多，靈活操作汪！」';
+        mood = 'sad_minor';
+      } else {
+        title = '🌱 實習小韭菜';
+        rankIcon = '🌱';
+        rankLevel = 'Lv.1 萌新實習小韭菜';
+        rankStars = '⭐⭐☆☆☆';
+        if (gameState.marketSentiment && gameState.marketSentiment.includes('恐慌')) {
+          quote = '「市場恐慌情緒爆表！大盤下殺跌跌不休，除了空手也可以考慮小量融券放空避險汪！」';
+        } else if (gameState.marketSentiment && gameState.marketSentiment.includes('貪婪')) {
+          quote = '「市場極度貪婪熱絡！小心散戶一窩蜂追高時主力趁機爆量倒貨割韭菜汪！」';
+        } else {
+          quote = '「今天高檔震盪洗盤，主力隨時甩轎，多空嚴設停損停利汪！」';
+        }
+        mood = 'normal';
+      }
+
+      const playerTitleEl = document.getElementById('player-title');
+      if (playerTitleEl) playerTitleEl.textContent = title;
+
+      const badgeIconEl = document.getElementById('rank-badge-icon');
+      if (badgeIconEl) badgeIconEl.textContent = rankIcon;
+
+      const badgeLevelEl = document.getElementById('rank-badge-level');
+      if (badgeLevelEl) badgeLevelEl.textContent = rankLevel;
+
+      const badgeStarsEl = document.getElementById('rank-badge-stars');
+      if (badgeStarsEl) badgeStarsEl.textContent = rankStars;
+
+      const badgeRateEl = document.getElementById('rank-badge-rate');
+      if (badgeRateEl) {
+        const isUp = returnRate >= 0;
+        badgeRateEl.textContent = `${isUp ? '+' : ''}${returnRate.toFixed(2)}%`;
+        badgeRateEl.className = isUp ? 'text-red' : 'text-green';
+      }
+
+      document.getElementById('mascot-quote').textContent = quote;
+      renderMascotSvg(mood);
+    }
+
+    function renderMascotSvg(mood) {
+      const container = document.getElementById('mascot-art');
+      const baseDefs = `
+        <defs>
+          <linearGradient id="shibaFur_${mood}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fbb03b"/>
+            <stop offset="100%" stop-color="#f39200"/>
+          </linearGradient>
+          <linearGradient id="shibaInnerEar_${mood}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fecdd3"/>
+            <stop offset="100%" stop-color="#fda4af"/>
+          </linearGradient>
+        </defs>
+      `;
+
+      const baseHead = `
+        <!-- Halo Background Circle -->
+        <circle cx="60" cy="62" r="50" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5" opacity="0.95"/>
+        <!-- Ears -->
+        <polygon points="26,38 38,12 56,30" fill="url(#shibaFur_${mood})" stroke="#d97706" stroke-width="1.5"/>
+        <polygon points="31,34 39,18 50,29" fill="url(#shibaInnerEar_${mood})"/>
+        <polygon points="94,38 82,12 64,30" fill="url(#shibaFur_${mood})" stroke="#d97706" stroke-width="1.5"/>
+        <polygon points="89,34 81,18 70,29" fill="url(#shibaInnerEar_${mood})"/>
+        <!-- Chubby Face -->
+        <ellipse cx="60" cy="64" rx="42" ry="38" fill="url(#shibaFur_${mood})"/>
+        <!-- White Muzzle & Cheek Patches -->
+        <path d="M30,62 C26,76 38,88 60,88 C82,88 94,76 90,62 C88,54 78,54 60,60 C42,54 32,54 30,62 Z" fill="#fffbeb"/>
+        <!-- Eyebrow Dots -->
+        <ellipse cx="44" cy="45" rx="5" ry="4" fill="#fffbeb"/>
+        <ellipse cx="76" cy="45" rx="5" ry="4" fill="#fffbeb"/>
+        <!-- Cheeks with Rosy Blush Lines -->
+        <ellipse cx="30" cy="67" rx="7" ry="4.5" fill="#fb7185" opacity="0.65"/>
+        <ellipse cx="90" cy="67" rx="7" ry="4.5" fill="#fb7185" opacity="0.65"/>
+        <line x1="27" y1="66" x2="33" y2="68" stroke="#f43f5e" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="87" y1="66" x2="93" y2="68" stroke="#f43f5e" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- Button Nose -->
+        <ellipse cx="60" cy="64" rx="4.5" ry="3" fill="#1e1b4b"/>
+        <circle cx="58.5" cy="63" r="1" fill="#ffffff"/>
+      `;
+
+      const basePaws = `
+        <!-- Chubby Paws with Pink Jelly Pads -->
+        <ellipse cx="42" cy="98" rx="9" ry="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+        <ellipse cx="78" cy="98" rx="9" ry="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+        <circle cx="42" cy="98" r="4" fill="#fca5a5"/>
+        <circle cx="38" cy="93" r="2" fill="#fca5a5"/>
+        <circle cx="42" cy="91" r="2" fill="#fca5a5"/>
+        <circle cx="46" cy="93" r="2" fill="#fca5a5"/>
+        <circle cx="78" cy="98" r="4" fill="#fca5a5"/>
+        <circle cx="74" cy="93" r="2" fill="#fca5a5"/>
+        <circle cx="78" cy="91" r="2" fill="#fca5a5"/>
+        <circle cx="82" cy="93" r="2" fill="#fca5a5"/>
+      `;
+
+      if (mood === 'god') {
+        container.innerHTML = `
+          <svg viewBox="0 0 120 120" width="100%" height="100%">
+            ${baseDefs}
+            ${baseHead}
+            <!-- Golden Jeweled Crown -->
+            <polygon points="46,24 50,10 60,18 70,10 74,24" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+            <circle cx="50" cy="10" r="2.5" fill="#ef4444"/>
+            <circle cx="60" cy="18" r="2.5" fill="#3b82f6"/>
+            <circle cx="70" cy="10" r="2.5" fill="#10b981"/>
+            <rect x="46" y="22" width="28" height="4" rx="2" fill="#f59e0b"/>
+            <!-- Gold-Rim Sunglasses -->
+            <polygon points="28,50 56,50 52,64 32,64" fill="#0f172a" stroke="#fbbf24" stroke-width="2"/>
+            <polygon points="64,50 92,50 88,64 68,64" fill="#0f172a" stroke="#fbbf24" stroke-width="2"/>
+            <line x1="56" y1="54" x2="64" y2="54" stroke="#fbbf24" stroke-width="2.5"/>
+            <line x1="32" y1="53" x2="44" y2="53" stroke="#fff" stroke-width="1.5" opacity="0.8"/>
+            <line x1="68" y1="53" x2="80" y2="53" stroke="#fff" stroke-width="1.5" opacity="0.8"/>
+            <!-- Open Happy Smile with Tongue -->
+            <path d="M52,70 Q60,82 68,70 Z" fill="#ef4444"/>
+            <ellipse cx="60" cy="76" rx="4" ry="2.5" fill="#fca5a5"/>
+            <!-- Sparkles -->
+            <text x="16" y="26" font-size="14">✨</text>
+            <text x="92" y="26" font-size="14">✨</text>
+            <!-- Golden Bone in Paws -->
+            <rect x="44" y="86" width="32" height="7" rx="3.5" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
+            <circle cx="44" cy="89.5" r="5" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
+            <circle cx="76" cy="89.5" r="5" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
+            ${basePaws}
+          </svg>
+        `;
+      } else if (mood === 'happy' || mood === 'cheerful') {
+        container.innerHTML = `
+          <svg viewBox="0 0 120 120" width="100%" height="100%">
+            ${baseDefs}
+            ${baseHead}
+            <!-- Victory Headband -->
+            <rect x="25" y="32" width="70" height="7" rx="3.5" fill="#ef4444"/>
+            <text x="60" y="38" font-size="6" font-weight="900" fill="#fff" text-anchor="middle">🚀 必勝</text>
+            <!-- Happy Curved Anime Eyes -->
+            <path d="M37,56 Q44,48 51,56" fill="none" stroke="#1e1b4b" stroke-width="3" stroke-linecap="round"/>
+            <path d="M69,56 Q76,48 83,56" fill="none" stroke="#1e1b4b" stroke-width="3" stroke-linecap="round"/>
+            <!-- Open Happy Smile with Tongue -->
+            <path d="M52,70 Q60,82 68,70 Z" fill="#ef4444"/>
+            <ellipse cx="60" cy="76" rx="4" ry="2.5" fill="#fca5a5"/>
+            <!-- Flying Music & Rocket Icons -->
+            <text x="16" y="28" font-size="14">🎵</text>
+            <text x="92" y="28" font-size="14">📈</text>
+            <!-- Red Bow Tie -->
+            <polygon points="52,82 68,82 60,88" fill="#ef4444"/>
+            <polygon points="52,94 68,94 60,88" fill="#ef4444"/>
+            <circle cx="60" cy="88" r="3.5" fill="#fbbf24"/>
+            ${basePaws}
+          </svg>
+        `;
+      } else if (mood === 'legend_short' || mood === 'pro_short') {
+        container.innerHTML = `
+          <svg viewBox="0 0 120 120" width="100%" height="100%">
+            ${baseDefs}
+            ${baseHead}
+            <!-- Cyber Eagle Badge & Lightning -->
+            <text x="14" y="26" font-size="14">🦅</text>
+            <text x="92" y="26" font-size="14">⚡</text>
+            <!-- Cyber Matrix Shades -->
+            <polygon points="26,50 56,50 52,64 30,64" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+            <polygon points="64,50 94,50 90,64 68,64" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+            <line x1="56" y1="54" x2="64" y2="54" stroke="#10b981" stroke-width="2.5"/>
+            <text x="31" y="60" font-size="7" font-family="monospace" fill="#10b981" font-weight="bold">📉SHORT</text>
+            <text x="69" y="60" font-size="7" font-family="monospace" fill="#10b981" font-weight="bold">WIN!⚡</text>
+            <!-- Smug Confident Grin -->
+            <path d="M54,68 Q62,74 68,67" fill="none" stroke="#1e1b4b" stroke-width="2.8" stroke-linecap="round"/>
+            <!-- Cyber Agent Bowtie -->
+            <polygon points="52,84 68,84 60,89" fill="#0f172a"/>
+            <polygon points="52,94 68,94 60,89" fill="#0f172a"/>
+            <circle cx="60" cy="89" r="2.8" fill="#10b981"/>
+            ${basePaws}
+          </svg>
+        `;
+      } else if (mood === 'sad' || mood === 'sad_minor') {
+        container.innerHTML = `
+          <svg viewBox="0 0 120 120" width="100%" height="100%">
+            ${baseDefs}
+            ${baseHead}
+            <!-- Wilted Leek on Head -->
+            <path d="M60,26 Q52,14 44,20" stroke="#10b981" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <path d="M60,26 Q70,12 78,18" stroke="#059669" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M60,26 Q60,6 56,2" stroke="#34d399" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <!-- Teary Eyes with Watery Droplets -->
+            <ellipse cx="44" cy="56" rx="6.5" ry="7.5" fill="#1e1b4b"/>
+            <ellipse cx="76" cy="56" rx="6.5" ry="7.5" fill="#1e1b4b"/>
+            <ellipse cx="41" cy="63" rx="4.5" ry="5.5" fill="#38bdf8" opacity="0.85"/>
+            <ellipse cx="73" cy="63" rx="4.5" ry="5.5" fill="#38bdf8" opacity="0.85"/>
+            <circle cx="41" cy="62" r="1.5" fill="#ffffff"/>
+            <circle cx="73" cy="62" r="1.5" fill="#ffffff"/>
+            <path d="M40,70 C38,76 38,82 40,86 C42,82 42,76 40,70 Z" fill="#38bdf8"/>
+            <path d="M74,70 C72,76 72,82 74,86 C76,82 76,76 74,70 Z" fill="#38bdf8"/>
+            <!-- Sad Quivering Wavy Mouth -->
+            <path d="M53,70 Q56.5,65 60,70 Q63.5,65 67,70" fill="none" stroke="#1e1b4b" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- Cheek Bandage -->
+            <rect x="25" y="62" width="10" height="3.5" rx="1.5" fill="#fde68a" stroke="#d97706" stroke-width="0.8" transform="rotate(30, 30, 63.5)"/>
+            <rect x="25" y="62" width="10" height="3.5" rx="1.5" fill="#fde68a" stroke="#d97706" stroke-width="0.8" transform="rotate(-30, 30, 63.5)"/>
+            ${basePaws}
+          </svg>
+        `;
+      } else if (mood === 'bankrupt') {
+        container.innerHTML = `
+          <svg viewBox="0 0 120 120" width="100%" height="100%">
+            ${baseDefs}
+            ${baseHead}
+            <!-- Cardboard Box on Head -->
+            <rect x="30" y="8" width="60" height="30" rx="4" fill="#d97706" stroke="#92400e" stroke-width="2"/>
+            <line x1="30" y1="20" x2="90" y2="20" stroke="#92400e" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <text x="60" y="28" font-size="8" font-weight="900" fill="#451a03" text-anchor="middle">📦 套牢紙箱</text>
+            <!-- Dizzy Spiral Eyes @_@ -->
+            <path d="M38,56 A3.5,3.5 0 0,0 45,56 A6,6 0 0,0 35,56 A8.5,8.5 0 0,0 48,56" fill="none" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+            <path d="M70,56 A3.5,3.5 0 0,0 77,56 A6,6 0 0,0 67,56 A8.5,8.5 0 0,0 80,56" fill="none" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+            <!-- Soul Floating Out of Mouth -->
+            <path d="M56,71 Q60,76 64,71" fill="none" stroke="#1e1b4b" stroke-width="2"/>
+            <circle cx="84" cy="62" r="7" fill="#e0f2fe" opacity="0.85"/>
+            <path d="M81,66 C83,72 85,72 87,66" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
+            <circle cx="82" cy="61" r="1" fill="#64748b"/>
+            <circle cx="86" cy="61" r="1" fill="#64748b"/>
+            <text x="14" y="28" font-size="14">💸</text>
+            ${basePaws}
+          </svg>
+        `;
+      } else {
+        // Normal Cute Newbie Shiba
+        container.innerHTML = `
+          <svg viewBox="0 0 120 120" width="100%" height="100%">
+            ${baseDefs}
+            ${baseHead}
+            <!-- Fresh Green Sprout Seedling -->
+            <path d="M60,26 Q58,16 60,6" stroke="#10b981" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <path d="M60,11 Q48,9 52,19 C56,20 60,15 60,11 Z" fill="#34d399"/>
+            <path d="M60,9 Q72,7 68,17 C64,18 60,13 60,9 Z" fill="#10b981"/>
+            <circle cx="54" cy="13" r="1.5" fill="#ffffff"/>
+            <!-- Anime Double-Sparkle Eyes -->
+            <ellipse cx="44" cy="56" rx="6.5" ry="7.5" fill="#1e1b4b"/>
+            <ellipse cx="76" cy="56" rx="6.5" ry="7.5" fill="#1e1b4b"/>
+            <circle cx="42" cy="54" r="2.8" fill="#ffffff"/>
+            <circle cx="74" cy="54" r="2.8" fill="#ffffff"/>
+            <circle cx="46" cy="59" r="1.4" fill="#ffffff"/>
+            <circle cx="78" cy="59" r="1.4" fill="#ffffff"/>
+            <!-- Cat ω Smile -->
+            <path d="M53,68 Q56.5,73 60,68 Q63.5,73 67,68" fill="none" stroke="#1e1b4b" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- Red Bow Tie with Golden Bell -->
+            <polygon points="52,82 68,82 60,88" fill="#ef4444"/>
+            <polygon points="52,94 68,94 60,88" fill="#ef4444"/>
+            <circle cx="60" cy="88" r="3.5" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+            ${basePaws}
+          </svg>
+        `;
+      }
+    }
+
+    /* ==========================================================
+       6. INDEX TREND CHART ENGINE (CANVAS HIGH-DPI)
+       ========================================================== */
+    function renderIndexChart() {
+      const canvas = document.getElementById('index-chart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const container = canvas.parentElement;
+      const rect = container.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const width = rect.width;
+      const height = rect.height;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const history = gameState.indexHistory || [];
+      if (history.length < 2) return;
+
+      // Padding
+      const padLeft = 46;
+      const padRight = 14;
+      const padTop = 18;
+      const padBottom = 26;
+
+      const chartW = width - padLeft - padRight;
+      const chartH = height - padTop - padBottom;
+
+      // Calculate Min and Max for scaling
+      let minVal = Math.min(...history.map(h => h.index));
+      let maxVal = Math.max(...history.map(h => h.index));
+      if (minVal === maxVal) { minVal -= 150; maxVal += 150; }
+      const margin = (maxVal - minVal) * 0.18;
+      minVal = Math.floor(minVal - margin);
+      maxVal = Math.ceil(maxVal + margin);
+
+      const firstPt = history[0];
+      const lastPt = history[history.length - 1];
+      const isUp = lastPt.index >= firstPt.index;
+      const lineColor = isUp ? '#f43f5e' : '#10b981';
+
+      // 1. Grid Lines & Axis Labels
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.fillStyle = '#64748b';
+      ctx.font = '10px Courier New, monospace';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+
+      const steps = 4;
+      for (let i = 0; i <= steps; i++) {
+        const val = minVal + (maxVal - minVal) * (i / steps);
+        const y = padTop + chartH - (i / steps) * chartH;
+        ctx.beginPath();
+        ctx.moveTo(padLeft, y);
+        ctx.lineTo(width - padRight, y);
+        ctx.stroke();
+
+        ctx.fillText(Math.round(val).toLocaleString(), padLeft - 6, y);
+      }
+      ctx.setLineDash([]);
+
+      // 2. Map coordinates
+      const points = history.map((h, i) => {
+        const x = padLeft + (i / (history.length - 1)) * chartW;
+        const y = padTop + chartH - ((h.index - minVal) / (maxVal - minVal)) * chartH;
+        return { x, y, data: h };
+      });
+
+      // 3. Area Gradient Fill
+      const grad = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
+      if (isUp) {
+        grad.addColorStop(0, 'rgba(244, 63, 94, 0.35)');
+        grad.addColorStop(1, 'rgba(244, 63, 94, 0.0)');
+      } else {
+        grad.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
+        grad.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.lineTo(points[points.length - 1].x, padTop + chartH);
+      ctx.lineTo(points[0].x, padTop + chartH);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // 4. Trend Line
+      ctx.beginPath();
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = 'round';
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.stroke();
+
+      // 5. Dots & Latest Point Indicator
+      points.forEach((p, idx) => {
+        const isLatest = idx === points.length - 1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, isLatest ? 4.5 : 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = isLatest ? '#fff' : lineColor;
+        ctx.fill();
+        if (isLatest) {
+          ctx.strokeStyle = lineColor;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      });
+
+      // Update Card Header Badge
+      const chartBadge = document.getElementById('chart-index-val');
+      if (chartBadge) {
+        chartBadge.textContent = `${lastPt.index.toLocaleString()} 點`;
+        chartBadge.className = isUp ? 'text-red' : 'text-green';
+      }
+
+      canvas._points = points;
+    }
+
+    function setupChartInteractivity() {
+      const canvas = document.getElementById('index-chart');
+      const tooltip = document.getElementById('chart-tooltip');
+      if (!canvas || !tooltip) return;
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (!canvas._points || canvas._points.length === 0) return;
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+
+        let nearest = null;
+        let minDist = Infinity;
+        canvas._points.forEach(p => {
+          const dist = Math.abs(p.x - mouseX);
+          if (dist < minDist) {
+            minDist = dist;
+            nearest = p;
+          }
+        });
+
+        if (nearest && minDist < 35) {
+          tooltip.style.display = 'block';
+          tooltip.style.left = `${Math.min(rect.width - 120, Math.max(10, nearest.x - 45))}px`;
+          tooltip.style.top = `${Math.max(6, nearest.y - 32)}px`;
+          const dayLabel = nearest.data.day <= 0 ? `開盤前 ${Math.abs(nearest.data.day)} 日` : `第 ${nearest.data.day} 天`;
+          tooltip.innerHTML = `<b>${dayLabel}</b>：${nearest.data.index.toLocaleString()} 點`;
+        } else {
+          tooltip.style.display = 'none';
+        }
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+      });
+
+      window.addEventListener('resize', () => {
+        renderIndexChart();
+      });
+    }
+
+    /* ==========================================================
+       7. RENDER UI
+       ========================================================== */
+    function renderUI() {
+      // Header, day & sentiment
+      document.getElementById('day-counter').textContent = gameState.day;
+      const twseEl = document.getElementById('twse-index');
+      twseEl.textContent = `${gameState.twseIndex.toLocaleString()} (${gameState.twseChange >= 0 ? '+' : ''}${gameState.twseChange})`;
+      twseEl.className = gameState.twseChange >= 0 ? 'text-red' : 'text-green';
+
+      const sentimentTag = document.getElementById('market-sentiment-tag');
+      if (sentimentTag) {
+        sentimentTag.textContent = gameState.marketSentiment || '⚖️ 高檔震盪洗盤';
+      }
+
+      // Assets
+      const netWorth = calculateNetWorth();
+      const longVal = gameState.stocks.reduce((sum, s) => sum + (s.hold * s.price * 1000), 0);
+      const shortVal = gameState.stocks.reduce((sum, s) => {
+        if (!s.shortHold || s.shortHold <= 0) return sum;
+        const shortProfit = (s.shortCost || 0) - (s.shortHold * s.price * 1000);
+        const marginDeposit = s.shortMargin || ((s.shortCost || 0) * 0.9);
+        return sum + marginDeposit + shortProfit;
+      }, 0);
+      const totalHoldingVal = longVal + shortVal;
+      const totalProfit = netWorth - gameState.initialCapital;
+      const profitRate = ((totalProfit / gameState.initialCapital) * 100).toFixed(2);
+
+      document.getElementById('stat-networth').textContent = `$${Math.round(netWorth).toLocaleString()}`;
+      document.getElementById('stat-cash').textContent = `$${Math.round(gameState.cash).toLocaleString()}`;
+      document.getElementById('stat-stock-value').textContent = `$${Math.round(totalHoldingVal).toLocaleString()}`;
+
+      const profitEl = document.getElementById('stat-daily-profit');
+      profitEl.textContent = `${totalProfit >= 0 ? '+' : ''}$${Math.round(totalProfit).toLocaleString()} (${profitRate}%)`;
+      profitEl.className = totalProfit >= 0 ? 'stat-val text-red' : 'stat-val text-green';
+
+      const feesEl = document.getElementById('stat-fees');
+      if (feesEl) {
+        feesEl.textContent = `$${Math.round(gameState.totalFeesPaid || 0).toLocaleString()}`;
+      }
+
+      // Win rate
+      const winRate = gameState.totalPredictions === 0 ? 0 : Math.round((gameState.correctPredictions / gameState.totalPredictions) * 100);
+      document.getElementById('win-rate-badge').textContent = `勝率: ${winRate}% (${gameState.correctPredictions}/${gameState.totalPredictions})`;
+
+      // News
+      const newsContainer = document.getElementById('news-container');
+      newsContainer.innerHTML = '';
+      gameState.todaysNews.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'news-item';
+        div.innerHTML = `
+          <div><span class="news-tag ${item.tag}">${item.type}</span></div>
+          <div style="font-weight: 600; color: #f1f5f9;">${item.title}</div>
+        `;
+        newsContainer.appendChild(div);
+      });
+
+      // Render Portfolio, Stocks & Index Chart
+      renderPortfolio();
+      renderStockList();
+      renderIndexChart();
+
+      // Prediction buttons
+      const upBtn = document.getElementById('btn-predict-up');
+      const downBtn = document.getElementById('btn-predict-down');
+      const statusEl = document.getElementById('predict-status');
+
+      upBtn.classList.remove('selected');
+      downBtn.classList.remove('selected');
+
+      if (gameState.prediction === 'up') {
+        upBtn.classList.add('selected');
+        statusEl.innerHTML = `已押注：<b class="text-red">明日看漲 🚀</b> (命中獲利 $10,000)`;
+      } else if (gameState.prediction === 'down') {
+        downBtn.classList.add('selected');
+        statusEl.innerHTML = `已押注：<b class="text-green">明日看跌 📉</b> (命中獲利 $10,000)`;
+      } else {
+        statusEl.textContent = '尚未押注明日多空走向';
+      }
+
+      // Lottery badges update
+      const lotteryBadge = document.getElementById('lottery-badge');
+      if (lotteryBadge) {
+        const count = (gameState.myLotteryEntries || []).length;
+        lotteryBadge.textContent = count > 0 ? `已抽 ${count}` : '樂透';
+      }
+      const lotteryStatusBadge = document.getElementById('lottery-status-badge');
+      if (lotteryStatusBadge) {
+        const count = (gameState.myLotteryEntries || []).length;
+        lotteryStatusBadge.textContent = count > 0 ? `已登記 ${count} 檔（明日開獎）` : '開放申購中';
+        lotteryStatusBadge.style.background = count > 0 ? '#10b981' : '#ef4444';
+      }
+
+      updateTitleAndMascot();
+      saveState();
+    }
+
+    function renderPortfolio() {
+      const container = document.getElementById('portfolio-container');
+      const summaryText = document.getElementById('portfolio-summary-text');
+      const longHoldings = gameState.stocks.filter(s => s.hold > 0);
+      const shortHoldings = gameState.stocks.filter(s => (s.shortHold || 0) > 0);
+      const totalHoldingsCount = longHoldings.length + shortHoldings.length;
+
+      summaryText.textContent = `多單 ${longHoldings.length} 檔 ｜ 空單 ${shortHoldings.length} 檔`;
+
+      if (totalHoldingsCount === 0) {
+        container.innerHTML = `
+          <div class="empty-portfolio">
+            🐾 目前手邊沒有任何持股或空單庫存汪！多頭可「買進做多」，空頭可「融券放空」賺取波段跌勢價差！
+          </div>
+        `;
+        return;
+      }
+
+      let totalTodayProfit = 0;
+      let totalUnrealizedProfit = 0;
+      let totalCommittedCapital = 0;
+
+      let html = `
+        <table class="portfolio-table">
+          <thead>
+            <tr>
+              <th>部位 / 標的</th>
+              <th>庫存張數</th>
+              <th>建倉均價</th>
+              <th>目前市價</th>
+              <th>今日損益 / 報酬率</th>
+              <th>累積未實現損益 / 報酬率</th>
+              <th style="text-align:right;">快速平倉</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      // 1. Long Positions
+      longHoldings.forEach(stock => {
+        const lotPrice = stock.price * 1000;
+        const totalCost = stock.totalCost || (stock.hold * lotPrice);
+        const avgCostPerShare = stock.hold > 0 ? (totalCost / (stock.hold * 1000)) : stock.price;
+        const marketVal = stock.hold * lotPrice;
+
+        const unrealizedProfit = marketVal - totalCost;
+        const unrealizedRoi = totalCost > 0 ? ((unrealizedProfit / totalCost) * 100).toFixed(2) : '0.00';
+        const isTotalUp = unrealizedProfit >= 0;
+
+        const todayProfit = (stock.price - stock.basePrice) * stock.hold * 1000;
+        const todayRoi = stock.basePrice ? (((stock.price - stock.basePrice) / stock.basePrice) * 100).toFixed(2) : '0.00';
+        const isTodayUp = todayProfit >= 0;
+
+        totalTodayProfit += todayProfit;
+        totalUnrealizedProfit += unrealizedProfit;
+        totalCommittedCapital += totalCost;
+
+        html += `
+          <tr>
+            <td>
+              <span class="stock-code">${stock.id}</span>
+              <b style="margin-left: 6px; color: #f8fafc;">${stock.name}</b>
+              <span class="tag-long">📈 做多</span>
+            </td>
+            <td><b>${stock.hold} 張</b></td>
+            <td>$${avgCostPerShare.toFixed(1)}</td>
+            <td class="${stock.price >= stock.basePrice ? 'text-red' : 'text-green'}"><b>$${stock.price.toFixed(stock.price < 50 ? 2 : 1)}</b></td>
+            <td>
+              <span class="badge-pill ${isTodayUp ? 'up' : 'down'}">
+                ${isTodayUp ? '▲ +' : '▼ -'}$${Math.abs(Math.round(todayProfit)).toLocaleString()} (${isTodayUp ? '+' : ''}${todayRoi}%)
+              </span>
+            </td>
+            <td>
+              <span class="badge-pill ${isTotalUp ? 'up' : 'down'}">
+                ${isTotalUp ? '▲ +' : '▼ -'}$${Math.abs(Math.round(unrealizedProfit)).toLocaleString()} (${isTotalUp ? '+' : ''}${unrealizedRoi}%)
+              </span>
+            </td>
+            <td style="text-align:right;">
+              <button class="btn-quick-sell" data-id="${stock.id}" data-action="sell1">賣 1 張</button>
+              <button class="btn-quick-sell" data-id="${stock.id}" data-action="sellAll" style="margin-left:4px;">全出</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      // 2. Short Positions
+      shortHoldings.forEach(stock => {
+        const shortLots = stock.shortHold;
+        const totalShortProceeds = stock.shortCost || (shortLots * stock.price * 1000);
+        const avgShortPerShare = shortLots > 0 ? (totalShortProceeds / (shortLots * 1000)) : stock.price;
+        const currentBuybackCost = shortLots * stock.price * 1000;
+        const marginDeposit = stock.shortMargin || (totalShortProceeds * 0.9);
+
+        // Unrealized Short Profit = Short proceeds - Buyback cost
+        const unrealizedProfit = totalShortProceeds - currentBuybackCost;
+        const unrealizedRoi = totalShortProceeds > 0 ? ((unrealizedProfit / totalShortProceeds) * 100).toFixed(2) : '0.00';
+        const isTotalUp = unrealizedProfit >= 0;
+
+        // Today's Short Profit = (basePrice - currentPrice) * lots * 1000
+        const todayProfit = (stock.basePrice - stock.price) * shortLots * 1000;
+        const todayRoi = stock.basePrice ? (((stock.basePrice - stock.price) / stock.basePrice) * 100).toFixed(2) : '0.00';
+        const isTodayUp = todayProfit >= 0;
+
+        totalTodayProfit += todayProfit;
+        totalUnrealizedProfit += unrealizedProfit;
+        totalCommittedCapital += marginDeposit;
+
+        html += `
+          <tr>
+            <td>
+              <span class="stock-code">${stock.id}</span>
+              <b style="margin-left: 6px; color: #f8fafc;">${stock.name}</b>
+              <span class="tag-short">📉 融券做空</span>
+            </td>
+            <td><b>${shortLots} 張 (空)</b></td>
+            <td>$${avgShortPerShare.toFixed(1)}</td>
+            <td class="${stock.price >= stock.basePrice ? 'text-red' : 'text-green'}"><b>$${stock.price.toFixed(stock.price < 50 ? 2 : 1)}</b></td>
+            <td>
+              <span class="badge-pill ${isTodayUp ? 'up' : 'down'}">
+                ${isTodayUp ? '▲ +' : '▼ -'}$${Math.abs(Math.round(todayProfit)).toLocaleString()} (${isTodayUp ? '+' : ''}${todayRoi}%)
+              </span>
+            </td>
+            <td>
+              <span class="badge-pill ${isTotalUp ? 'up' : 'down'}">
+                ${isTotalUp ? '▲ +' : '▼ -'}$${Math.abs(Math.round(unrealizedProfit)).toLocaleString()} (${isTotalUp ? '+' : ''}${unrealizedRoi}%)
+              </span>
+            </td>
+            <td style="text-align:right;">
+              <button class="btn-quick-cover" data-id="${stock.id}" data-action="cover1">補 1 張</button>
+              <button class="btn-quick-cover" data-id="${stock.id}" data-action="coverAll" style="margin-left:4px;">全補</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      const totalRoiOverall = totalCommittedCapital > 0 ? ((totalUnrealizedProfit / totalCommittedCapital) * 100).toFixed(2) : '0.00';
+      html += `
+          </tbody>
+          <tfoot>
+            <tr style="background: rgba(15, 23, 42, 0.7); font-weight: bold;">
+              <td colspan="4" style="color: #cbd5e1; text-align: right; padding-right: 14px;">部位合計（多+空）：</td>
+              <td class="${totalTodayProfit >= 0 ? 'text-red' : 'text-green'}">
+                ${totalTodayProfit >= 0 ? '▲ +' : '▼ -'}$${Math.abs(Math.round(totalTodayProfit)).toLocaleString()}
+              </td>
+              <td class="${totalUnrealizedProfit >= 0 ? 'text-red' : 'text-green'}">
+                ${totalUnrealizedProfit >= 0 ? '▲ +' : '▼ -'}$${Math.abs(Math.round(totalUnrealizedProfit)).toLocaleString()} (${totalRoiOverall}%)
+              </td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      `;
+
+      container.innerHTML = html;
+
+      // Bind quick sell events
+      container.querySelectorAll('.btn-quick-sell').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const isAll = btn.dataset.action === 'sellAll';
+          sellStock(id, isAll);
+        });
+      });
+
+      // Bind quick cover events
+      container.querySelectorAll('.btn-quick-cover').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const isAll = btn.dataset.action === 'coverAll';
+          coverStock(id, isAll);
+        });
+      });
+    }
+
+    function renderStockList() {
+      const container = document.getElementById('stock-container');
+      container.innerHTML = '';
+
+      const filtered = gameState.stocks.filter(s => {
+        if (gameState.activeFilter === 'all') return true;
+        return s.cat === gameState.activeFilter;
+      });
+
+      filtered.forEach(stock => {
+        const card = document.createElement('div');
+        card.className = `stock-card ${stock.delisted ? 'delisted' : ''}`;
+
+        if (stock.delisted) {
+          card.innerHTML = `
+            <div style="position: relative;">
+              <div class="delist-stamp">⛔ 遭勒令終止下市・股票變壁紙</div>
+              <div class="stock-header">
+                <div>
+                  <span class="stock-code">${stock.id}</span>
+                  <span class="stock-name" style="margin-left: 6px; text-decoration: line-through; color: #94a3b8;">${stock.name}</span>
+                </div>
+                <span class="stock-cat text-red">已撤銷公開發行</span>
+              </div>
+
+              <div class="stock-price-area">
+                <div class="stock-price text-red" style="text-decoration: line-through;">$0.00</div>
+                <div class="stock-change text-red">-100% (壁紙)</div>
+              </div>
+
+              <div class="stock-holdings" style="background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.4);">
+                <div style="color: #fca5a5; font-size: 0.8rem; line-height: 1.4;">
+                  ⚠️ <b>公司掏空暴雷已下市：</b><br>
+                  庫存股款已全數歸零，不可買賣。可向證交所申請引進新潛力公司進行 IPO 遞補掛牌！
+                </div>
+              </div>
+            </div>
+
+            <div class="stock-actions" style="grid-template-columns: 1fr;">
+              <button class="btn-trade btn-reorganize" data-id="${stock.id}">
+                🔄 證交所引進新股 IPO 掛牌遞補
+              </button>
+            </div>
+          `;
+          container.appendChild(card);
+          return;
+        }
+
+        const lotPrice = stock.price * 1000;
+        const marginDeposit = Math.round(lotPrice * 0.9);
+        const fee = Math.max(20, Math.round(lotPrice * 0.001425));
+        const taxRate = stock.cat === 'etf' ? 0.001 : 0.003;
+        const tax = Math.round(lotPrice * taxRate);
+
+        const canBuy = gameState.cash >= (lotPrice + fee);
+        const canSell = stock.hold > 0;
+        const canShort = gameState.cash >= (marginDeposit + fee + tax);
+        const canCover = (stock.shortHold || 0) > 0;
+
+        const changeRate = stock.basePrice ? (((stock.price - stock.basePrice) / stock.basePrice) * 100).toFixed(2) : '0.00';
+        const isUp = stock.price >= stock.basePrice;
+
+        // Long Calculations
+        const totalCost = stock.totalCost || (stock.hold * lotPrice);
+        const avgCostPerShare = stock.hold > 0 ? (totalCost / (stock.hold * 1000)) : 0;
+        const marketVal = stock.hold * lotPrice;
+        const unrealizedProfit = marketVal - totalCost;
+        const unrealizedRoi = totalCost > 0 ? ((unrealizedProfit / totalCost) * 100).toFixed(2) : '0.00';
+        const isTotalUp = unrealizedProfit >= 0;
+        const todayProfit = (stock.price - stock.basePrice) * stock.hold * 1000;
+        const isTodayUp = todayProfit >= 0;
+
+        // Short Calculations
+        const shortLots = stock.shortHold || 0;
+        const totalShortProceeds = stock.shortCost || (shortLots * lotPrice);
+        const avgShortPerShare = shortLots > 0 ? (totalShortProceeds / (shortLots * 1000)) : 0;
+        const currentBuybackCost = shortLots * lotPrice;
+        const shortUnrealizedProfit = totalShortProceeds - currentBuybackCost;
+        const shortUnrealizedRoi = totalShortProceeds > 0 ? ((shortUnrealizedProfit / totalShortProceeds) * 100).toFixed(2) : '0.00';
+        const isShortTotalUp = shortUnrealizedProfit >= 0;
+        const shortTodayProfit = (stock.basePrice - stock.price) * shortLots * 1000;
+        const isShortTodayUp = shortTodayProfit >= 0;
+
+        card.innerHTML = `
+          <div>
+            <div class="stock-header">
+              <div>
+                <span class="stock-code">${stock.id}</span>
+                <span class="stock-name" style="margin-left: 6px;">${stock.name}</span>
+              </div>
+              <span class="stock-cat">${stock.catName}</span>
+            </div>
+
+            <div class="stock-price-area">
+              <div class="stock-price ${isUp ? 'text-red' : 'text-green'}">$${stock.price.toFixed(stock.price < 50 ? 2 : 1)}</div>
+              <div class="stock-change ${isUp ? 'text-red' : 'text-green'}">
+                ${isUp ? '▲' : '▼'} ${Math.abs(stock.price - stock.basePrice).toFixed(1)} (${changeRate}%)
+              </div>
+            </div>
+
+            <div class="stock-holdings ${(stock.hold > 0 || shortLots > 0) ? 'active-holding' : ''}">
+              ${stock.hold > 0 ? `
+                <div style="display:flex; justify-content:space-between;">
+                  <span><b class="text-red">📈 多單庫存：</b><b>${stock.hold} 張</b></span>
+                  <span>均價: <b>$${avgCostPerShare.toFixed(1)}</b></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; border-top:1px dashed rgba(255,255,255,0.1); padding-top:2px; margin-top:2px;">
+                  <span>多單未實現損益：</span>
+                  <span class="${isTotalUp ? 'text-red' : 'text-green'}"><b>${isTotalUp ? '+' : ''}$${Math.round(unrealizedProfit).toLocaleString()} (${unrealizedRoi}%)</b></span>
+                </div>
+              ` : ''}
+
+              ${shortLots > 0 ? `
+                <div style="display:flex; justify-content:space-between; ${stock.hold > 0 ? 'margin-top:6px; border-top:1px solid rgba(255,255,255,0.15); padding-top:4px;' : ''}">
+                  <span><b class="text-green">📉 融券空單：</b><b>${shortLots} 張</b></span>
+                  <span>放空價: <b>$${avgShortPerShare.toFixed(1)}</b></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; border-top:1px dashed rgba(255,255,255,0.1); padding-top:2px; margin-top:2px;">
+                  <span>空單未實現損益：</span>
+                  <span class="${isShortTotalUp ? 'text-red' : 'text-green'}"><b>${isShortTotalUp ? '+' : ''}$${Math.round(shortUnrealizedProfit).toLocaleString()} (${shortUnrealizedRoi}%)</b></span>
+                </div>
+              ` : ''}
+
+              ${(!stock.hold && shortLots === 0) ? `
+                <div style="color: var(--text-sub); text-align: center; font-size: 0.8rem; padding: 4px 0;">未持有部位（看漲可買多，看跌可融券）</div>
+              ` : ''}
+            </div>
+          </div>
+
+          <div class="stock-actions">
+            <button class="btn-trade btn-buy" data-id="${stock.id}" ${canBuy ? '' : 'disabled'}>
+              <span>📈 現股買進</span>
+              <small>$${Math.round(lotPrice).toLocaleString()}</small>
+            </button>
+            <button class="btn-trade btn-sell" data-id="${stock.id}" ${canSell ? '' : 'disabled'}>
+              <span>平倉多單</span>
+              <small>餘 ${stock.hold} 張</small>
+            </button>
+            <button class="btn-trade btn-short-sell" data-id="${stock.id}" ${canShort ? '' : 'disabled'}>
+              <span>📉 融券放空</span>
+              <small>保證金 $${Math.round(marginDeposit).toLocaleString()}</small>
+            </button>
+            <button class="btn-trade btn-short-cover" data-id="${stock.id}" ${canCover ? '' : 'disabled'}>
+              <span>融券回補</span>
+              <small>餘 ${shortLots} 張</small>
+            </button>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      // Bind trading actions
+      container.querySelectorAll('.btn-buy').forEach(btn => {
+        btn.addEventListener('click', () => buyStock(btn.dataset.id));
+      });
+      container.querySelectorAll('.btn-sell').forEach(btn => {
+        btn.addEventListener('click', () => sellStock(btn.dataset.id, false));
+      });
+      container.querySelectorAll('.btn-short-sell').forEach(btn => {
+        btn.addEventListener('click', () => shortStock(btn.dataset.id));
+      });
+      container.querySelectorAll('.btn-short-cover').forEach(btn => {
+        btn.addEventListener('click', () => coverStock(btn.dataset.id, false));
+      });
+      container.querySelectorAll('.btn-reorganize').forEach(btn => {
+        btn.addEventListener('click', () => reorganizeStock(btn.dataset.id));
+      });
+    }
+
+    /* ==========================================================
+       7. TRADING ACTIONS (REALISTIC BROKER FEES & TAXES)
+       ========================================================== */
+    function buyStock(id) {
+      const stock = gameState.stocks.find(s => s.id === id);
+      if (!stock) return;
+      const rawCost = stock.price * 1000;
+      // Real Taiwan stock broker fee: 0.1425%, min 20 NTD
+      const fee = Math.max(20, Math.round(rawCost * 0.001425));
+      const totalRequired = rawCost + fee;
+
+      if (gameState.cash >= totalRequired) {
+        gameState.cash -= totalRequired;
+        stock.hold += 1;
+        stock.totalCost = (stock.totalCost || 0) + totalRequired;
+        gameState.totalFeesPaid = (gameState.totalFeesPaid || 0) + fee;
+        sound.playBuy();
+        renderUI();
+      } else {
+        alert(`可用現金不足！購買 1 張需要股款 $${Math.round(rawCost).toLocaleString()} + 手續費 $${fee} 元。`);
+      }
+    }
+
+    function sellStock(id, sellAll = false) {
+      const stock = gameState.stocks.find(s => s.id === id);
+      if (!stock || stock.hold <= 0) return;
+
+      const lotsToSell = sellAll ? stock.hold : 1;
+      const rawRevenue = stock.price * 1000 * lotsToSell;
+
+      // Broker fee: 0.1425%, Tax: 0.3% (ETF is 0.1%)
+      const fee = Math.max(20, Math.round(rawRevenue * 0.001425));
+      const taxRate = stock.cat === 'etf' ? 0.001 : 0.003;
+      const tax = Math.round(rawRevenue * taxRate);
+      const netGain = rawRevenue - fee - tax;
+
+      const costPerLot = (stock.totalCost || (stock.hold * stock.price * 1000)) / stock.hold;
+
+      gameState.cash += netGain;
+      stock.totalCost = Math.max(0, (stock.totalCost || 0) - (costPerLot * lotsToSell));
+      stock.hold -= lotsToSell;
+      gameState.totalFeesPaid = (gameState.totalFeesPaid || 0) + fee + tax;
+
+      if (stock.hold <= 0) {
+        stock.hold = 0;
+        stock.totalCost = 0;
+      }
+
+      sound.playSell();
+      renderUI();
+    }
+
+    function shortStock(id) {
+      const stock = gameState.stocks.find(s => s.id === id);
+      if (!stock) return;
+      if (stock.delisted) {
+        alert('此公司已遭勒令下市變壁紙，無法進行融券操作！');
+        return;
+      }
+
+      const rawCost = stock.price * 1000;
+      // Taiwan standard: 90% margin deposit for short selling
+      const marginDeposit = Math.round(rawCost * 0.9);
+      // Broker fee: 0.1425%, min 20 NTD
+      const fee = Math.max(20, Math.round(rawCost * 0.001425));
+      // Transaction tax on sell: 0.3% (ETF 0.1%)
+      const taxRate = stock.cat === 'etf' ? 0.001 : 0.003;
+      const tax = Math.round(rawCost * taxRate);
+      const totalRequired = marginDeposit + fee + tax;
+
+      if (gameState.cash >= totalRequired) {
+        gameState.cash -= totalRequired;
+        stock.shortHold = (stock.shortHold || 0) + 1;
+        stock.shortCost = (stock.shortCost || 0) + rawCost;
+        stock.shortMargin = (stock.shortMargin || 0) + marginDeposit;
+        gameState.totalFeesPaid = (gameState.totalFeesPaid || 0) + fee + tax;
+        sound.playSell();
+        renderUI();
+      } else {
+        alert(`可用現金不足！融券放空 1 張需要 90% 保證金 $${marginDeposit.toLocaleString()} + 稅費 $${fee + tax} 元（總共需 $${totalRequired.toLocaleString()} 元）。`);
+      }
+    }
+
+    function coverStock(id, coverAll = false) {
+      const stock = gameState.stocks.find(s => s.id === id);
+      if (!stock || !stock.shortHold || stock.shortHold <= 0) return;
+
+      const lotsToCover = coverAll ? stock.shortHold : 1;
+      const rawBuybackCost = stock.price * 1000 * lotsToCover;
+      // Broker fee for buyback: 0.1425%, min 20 NTD
+      const fee = Math.max(20, Math.round(rawBuybackCost * 0.001425));
+
+      const avgShortPrice = stock.shortCost / stock.shortHold;
+      const originalShortProceeds = avgShortPrice * 1000 * lotsToCover;
+      const marginToReturn = (stock.shortMargin / stock.shortHold) * lotsToCover;
+
+      // Short Profit = original short proceeds - buyback cost
+      const shortProfit = originalShortProceeds - rawBuybackCost;
+      // Net cash returned = margin returned + shortProfit - fee
+      const netCashReturned = marginToReturn + shortProfit - fee;
+
+      gameState.cash += netCashReturned;
+      stock.shortCost = Math.max(0, stock.shortCost - originalShortProceeds);
+      stock.shortMargin = Math.max(0, stock.shortMargin - marginToReturn);
+      stock.shortHold -= lotsToCover;
+      gameState.totalFeesPaid = (gameState.totalFeesPaid || 0) + fee;
+
+      if (stock.shortHold <= 0) {
+        stock.shortHold = 0;
+        stock.shortCost = 0;
+        stock.shortMargin = 0;
+      }
+
+      sound.playBuy();
+      renderUI();
+    }
+
+    /* ==========================================================
+       7.5 STOCK IPO LOTTERY SUBSCRIPTION (股票抽籤申購系統)
+       ========================================================== */
+    function renderLotteryModal() {
+      const container = document.getElementById('lottery-offerings-container');
+      if (!container) return;
+
+      if (!gameState.activeLotteries || gameState.activeLotteries.length === 0) {
+        gameState.activeLotteries = pickRandomLotteries();
+      }
+
+      container.innerHTML = '';
+
+      gameState.activeLotteries.forEach(item => {
+        const isEntered = (gameState.myLotteryEntries || []).includes(item.id);
+        const subTotal = item.subPrice * 1000;
+        const estTotal = item.estPrice * 1000;
+        const profitTotal = estTotal - subTotal;
+        const profitRoi = ((profitTotal / subTotal) * 100).toFixed(1);
+        const totalReq = subTotal + 20; // 20 NTD handling fee
+        const canAfford = gameState.cash >= totalReq;
+
+        const card = document.createElement('div');
+        card.style.background = 'rgba(15, 23, 42, 0.6)';
+        card.style.border = isEntered ? '2px solid #10b981' : '1px solid rgba(245, 158, 11, 0.4)';
+        card.style.borderRadius = '12px';
+        card.style.padding = '14px 16px';
+        card.style.position = 'relative';
+
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="stock-code" style="font-size: 0.85rem;">${item.id}</span>
+                <span style="font-size: 1.1rem; font-weight: 800; color: #f8fafc;">${item.name}</span>
+                <span class="stock-cat" style="font-size: 0.7rem;">${item.catName}</span>
+              </div>
+              <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px; line-height: 1.4;">${item.desc}</div>
+            </div>
+            ${isEntered ? `
+              <span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; white-space: nowrap;">
+                ✓ 已完成登記
+              </span>
+            ` : `
+              <span style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; white-space: nowrap;">
+                開放申購中
+              </span>
+            `}
+          </div>
+
+          <!-- Price & Profit Comparison Grid -->
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; background: rgba(0, 0, 0, 0.25); padding: 10px; border-radius: 8px;">
+            <div style="text-align: center;">
+              <div style="font-size: 0.72rem; color: #94a3b8;">申購承銷價</div>
+              <div style="font-size: 1rem; font-weight: 800; color: #f8fafc; margin-top: 2px;">$${item.subPrice} <span style="font-size: 0.7rem; font-weight: normal; color: #64748b;">($${subTotal.toLocaleString()}/張)</span></div>
+            </div>
+            <div style="text-align: center; border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1);">
+              <div style="font-size: 0.72rem; color: #94a3b8;">預估掛牌市價</div>
+              <div style="font-size: 1rem; font-weight: 800; color: #38bdf8; margin-top: 2px;">$${item.estPrice} <span style="font-size: 0.7rem; font-weight: normal; color: #64748b;">($${estTotal.toLocaleString()}/張)</span></div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.72rem; color: #94a3b8;">抽中預估現賺</div>
+              <div style="font-size: 1rem; font-weight: 800; color: #ef4444; margin-top: 2px;">+$${profitTotal.toLocaleString()} <span style="font-size: 0.7rem; font-weight: bold; color: #ef4444;">(+${profitRoi}%)</span></div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+            <div style="font-size: 0.75rem; color: #cbd5e1;">
+              預估中籤率：<b style="color: #fbbf24;">${(item.rate * 100).toFixed(0)}%</b> ｜ 需備款項：<b>$${totalReq.toLocaleString()}</b> <span style="color:#64748b;">(含20元手續費)</span>
+            </div>
+            <div>
+              ${isEntered ? `
+                <button disabled style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: not-allowed;">
+                  ⏳ 明日收盤開獎中
+                </button>
+              ` : `
+                <button class="btn-subscribe-lottery" data-id="${item.id}" ${!canAfford ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 800; cursor: pointer; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); transition: all 0.2s;">
+                  🎟️ 立即登記抽籤
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      container.querySelectorAll('.btn-subscribe-lottery').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = e.currentTarget.dataset.id;
+          subscribeLottery(id);
+        });
+      });
+    }
+
+    function subscribeLottery(id) {
+      const offering = (gameState.activeLotteries || []).find(item => item.id === id) || LOTTERY_POOL.find(item => item.id === id);
+      if (!offering) return;
+
+      if (!gameState.myLotteryEntries) gameState.myLotteryEntries = [];
+      if (gameState.myLotteryEntries.includes(id)) {
+        alert('您已經登記申購過這檔股票囉！每檔股票限抽 1 張（1,000股）汪！');
+        return;
+      }
+
+      const totalRequired = offering.subPrice * 1000 + 20; // 20 NTD handling fee
+      if (gameState.cash < totalRequired) {
+        alert(`可用現金不足！申購【${offering.name}】需預扣承銷股款 $${(offering.subPrice * 1000).toLocaleString()} 元 + 20 元處理費（總計 $${totalRequired.toLocaleString()} 元）。`);
+        return;
+      }
+
+      gameState.cash -= totalRequired;
+      gameState.totalFeesPaid = (gameState.totalFeesPaid || 0) + 20;
+      gameState.myLotteryEntries.push(id);
+
+      sound.playBuy();
+      renderLotteryModal();
+      renderUI();
+      alert(`🎉 恭喜！已成功登記申購【${offering.id} ${offering.name}】！\n已預扣股款 $${(offering.subPrice * 1000).toLocaleString()} 元及手續費 20 元。\n明日收盤時將於證交所公開搖珠開獎，祝您幸運中籤大賺紅包汪！`);
+    }
+
+    function showLotteryWinModal(wonList) {
+      const modal = document.getElementById('lottery-win-modal');
+      const title = document.getElementById('lottery-win-title');
+      const desc = document.getElementById('lottery-win-desc');
+      const stats = document.getElementById('lottery-win-stats');
+
+      title.innerHTML = `🎉 狂賀！天降大禮！您中籤啦！`;
+      let statsHtml = '';
+      let totalWonProfit = 0;
+
+      wonList.forEach(item => {
+        totalWonProfit += item.profit;
+        statsHtml += `
+          <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 10px; margin-bottom: 8px; text-align: left;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <b style="font-size: 1.05rem; color: #fbbf24;">${item.id} ${item.name}</b>
+                <span class="stock-cat" style="font-size:0.7rem; margin-left:6px;">${item.catName}</span>
+              </div>
+              <span style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 4px;">中籤 1 張 (1,000股)</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; font-size: 0.8rem;">
+              <div>承銷認購價：<b>$${item.subPrice}</b></div>
+              <div>掛牌開盤市價：<b style="color: #38bdf8;">$${item.listingPrice.toFixed(1)}</b></div>
+              <div>首日現賺價差：<b class="text-red">+$${item.profit.toLocaleString()}</b></div>
+            </div>
+          </div>
+        `;
+      });
+
+      desc.innerHTML = `柴犬波比在證交所搖珠抽籤現場幫你抽中大紅包！總計潛在蜜月暴賺 <b class="text-red">+$${totalWonProfit.toLocaleString()} 元</b>！股票已正式撥入持股庫存汪！`;
+      stats.innerHTML = statsHtml;
+
+      modal.style.display = 'flex';
+    }
+
+    /* ==========================================================
+       8. ADVANCE TRADING DAY (REALISTIC VOLATILITY & SENTIMENT ENGINE)
+       ========================================================== */
+    function advanceTradingDay() {
+      // 1. Calculate Market Multipliers based on News & Balanced Base Drift
+      // Calibrated market drift (Target: ~60% down / ~40% up)
+      let baseDrift = (Math.random() - 0.50) * 0.022; 
+      let marketBias = baseDrift;
+
+      // Aggregate news effects
+      gameState.todaysNews.forEach(news => {
+        if (news.effect) {
+          if (news.effect.twse) marketBias += news.effect.twse;
+          if (news.effect.all) marketBias += news.effect.all;
+        }
+      });
+
+      // 8% Chance of Sudden Liquidity Shock (主力甩轎倒貨)
+      const isShockDay = Math.random() < 0.08;
+      let shockMsg = '';
+      if (isShockDay) {
+        const shockHit = (0.012 + Math.random() * 0.016);
+        marketBias -= shockHit;
+        shockMsg = '⚠️ 盤中突發震盪賣壓！外資短線獲利了結引發甩轎！';
+      }
+
+      // Update Market Sentiment / Fear & Greed Index
+      let fearDelta = marketBias * 700;
+      gameState.fearGreed = Math.max(8, Math.min(95, Math.round(gameState.fearGreed + fearDelta + (Math.random() - 0.5) * 8)));
+
+      if (gameState.fearGreed <= 25) {
+        gameState.marketSentiment = '😱 極度恐慌 (多殺多甩轎)';
+      } else if (gameState.fearGreed <= 42) {
+        gameState.marketSentiment = '🐻 空頭修正 (外資大提款)';
+      } else if (gameState.fearGreed <= 60) {
+        gameState.marketSentiment = '⚖️ 高檔震盪 (主力洗盤)';
+      } else if (gameState.fearGreed <= 78) {
+        gameState.marketSentiment = '🚀 多頭熱絡 (類股輪動)';
+      } else {
+        gameState.marketSentiment = '🔥 極度貪婪 (警惕假突破倒貨)';
+      }
+
+      // 2. Next Index value
+      const indexFluctuation = Math.round(gameState.twseIndex * marketBias);
+      gameState.twseChange = indexFluctuation;
+      gameState.twseIndex = Math.max(12000, gameState.twseIndex + indexFluctuation);
+      const actualMarketUp = indexFluctuation >= 0;
+
+      // 3. Process Player Prediction
+      let predictionBonus = 0;
+      let predictionMsg = '您昨日未對大盤進行多空預測。';
+      if (gameState.prediction) {
+        gameState.totalPredictions++;
+        const won = (gameState.prediction === 'up' && actualMarketUp) || (gameState.prediction === 'down' && !actualMarketUp);
+        if (won) {
+          predictionBonus = 10000;
+          gameState.cash += predictionBonus;
+          gameState.correctPredictions++;
+          predictionMsg = `🎯 恭喜猜對大盤走向！波比頒發神準預測津貼 <b class="text-red">+$10,000 元</b>！`;
+        } else {
+          predictionMsg = `😅 預測失誤！昨日大盤實為 ${actualMarketUp ? '大漲' : '重挫'}，下次再接再厲！`;
+        }
+      }
+
+      // 3.5. Process Stock IPO Lottery Drawings
+      const wonLotteries = [];
+      const lostLotteries = [];
+      let totalLotteryRefund = 0;
+
+      if (gameState.myLotteryEntries && gameState.myLotteryEntries.length > 0) {
+        gameState.myLotteryEntries.forEach(entryId => {
+          const offering = (gameState.activeLotteries || []).find(item => item.id === entryId) ||
+                           LOTTERY_POOL.find(item => item.id === entryId);
+          if (!offering) return;
+
+          const isWin = Math.random() < offering.rate;
+          if (isWin) {
+            // First day listing excitement: -2% to +8% around estPrice
+            const listingPrice = Math.round((offering.estPrice * (1 + (Math.random() - 0.25) * 0.1)) * 10) / 10;
+            const profit = Math.round((listingPrice - offering.subPrice) * 1000);
+
+            // Add stock to player holdings
+            let existing = gameState.stocks.find(s => s.id === offering.id);
+            if (existing) {
+              existing.hold += 1;
+              existing.totalCost = (existing.totalCost || 0) + (offering.subPrice * 1000);
+              existing.price = listingPrice;
+              existing.basePrice = offering.subPrice;
+              existing.delisted = false;
+            } else {
+              gameState.stocks.push({
+                id: offering.id,
+                name: offering.name,
+                cat: offering.cat,
+                catName: offering.catName,
+                price: listingPrice,
+                basePrice: offering.subPrice,
+                change: listingPrice - offering.subPrice,
+                hold: 1,
+                totalCost: offering.subPrice * 1000,
+                shortHold: 0,
+                shortCost: 0,
+                shortMargin: 0,
+                delisted: false
+              });
+            }
+
+            wonLotteries.push({
+              ...offering,
+              listingPrice,
+              profit
+            });
+          } else {
+            // Unsuccessful: Refund principal, 20 NTD handling fee is retained by broker
+            const refundAmount = offering.subPrice * 1000;
+            gameState.cash += refundAmount;
+            totalLotteryRefund += refundAmount;
+            lostLotteries.push(offering);
+          }
+        });
+
+        // Clear entries for next round
+        gameState.myLotteryEntries = [];
+      }
+
+      // Rotate active lottery offerings every 2 trading days
+      if (gameState.day % 2 === 0) {
+        gameState.activeLotteries = pickRandomLotteries();
+      }
+
+      // 4. Check for Delisting / Wallpaper Event (At most ONE company per game run, delayed to Day 6+)
+      let delistedStock = null;
+      let lostAmount = 0;
+      let hadHolding = false;
+      let heldLots = 0;
+      let hadShort = false;
+      let shortLots = 0;
+      let shortWindfall = 0;
+
+      const hasDelistNews = gameState.todaysNews.some(n => n.isDelistTrigger);
+      const isExtremePanic = gameState.fearGreed <= 20 && Math.random() < 0.04;
+      const canDelist = gameState.day >= 6 && !isDelistLocked();
+
+      if (canDelist && (hasDelistNews || isExtremePanic)) {
+        const eligibleStocks = gameState.stocks.filter(s => s.cat !== 'etf' && !s.delisted);
+        if (eligibleStocks.length > 0) {
+          // If player has holdings in any eligible stock (long or short), prioritize for drama!
+          const activeEligible = eligibleStocks.filter(s => s.hold > 0 || (s.shortHold || 0) > 0);
+          if (activeEligible.length > 0 && Math.random() < 0.65) {
+            delistedStock = activeEligible[Math.floor(Math.random() * activeEligible.length)];
+          } else {
+            delistedStock = eligibleStocks[Math.floor(Math.random() * eligibleStocks.length)];
+          }
+
+          // Permanently lock delisting for this game run
+          gameState.hasDelistedOccurred = true;
+          gameState.delistCount = 1;
+          if (!gameState.delistedHistory) gameState.delistedHistory = [];
+          if (!gameState.delistedHistory.includes(delistedStock.id)) {
+            gameState.delistedHistory.push(delistedStock.id);
+          }
+
+          hadHolding = delistedStock.hold > 0;
+          heldLots = delistedStock.hold;
+          lostAmount = heldLots * delistedStock.price * 1000;
+
+          hadShort = (delistedStock.shortHold || 0) > 0;
+          shortLots = delistedStock.shortHold || 0;
+          if (hadShort) {
+            // Short seller jackpot: buyback price is $0!
+            // Return 100% margin deposit + 100% of the short proceeds!
+            shortWindfall = (delistedStock.shortMargin || 0) + (delistedStock.shortCost || 0);
+            gameState.cash += shortWindfall;
+          }
+
+          // Vaporize the stock
+          delistedStock.delisted = true;
+          delistedStock.price = 0;
+          delistedStock.basePrice = 0;
+          delistedStock.hold = 0;
+          delistedStock.totalCost = 0;
+          delistedStock.shortHold = 0;
+          delistedStock.shortCost = 0;
+          delistedStock.shortMargin = 0;
+        }
+      }
+
+      // 5. Update Stock Prices & calculate today's holding profit
+      let todayHoldingProfit = 0;
+      gameState.stocks.forEach(stock => {
+        if (stock.delisted) {
+          stock.price = 0;
+          stock.basePrice = 0;
+          stock.hold = 0;
+          stock.shortHold = 0;
+          return;
+        }
+
+        stock.basePrice = stock.price; // yesterday's close
+
+        // Calibrated beta and noise (Target: ~58% down / ~42% up)
+        let beta = 1.0;
+        if (stock.cat === 'ai') beta = 1.25;
+        if (stock.cat === 'semi') beta = 1.15;
+        if (stock.cat === 'trad') beta = 1.0;
+        if (stock.cat === 'etf') beta = 0.7;
+
+        let stockBias = (marketBias * beta) + (Math.random() - 0.65) * 0.035;
+
+        // Specific news boost
+        gameState.todaysNews.forEach(news => {
+          if (news.effect && news.effect[stock.id]) {
+            stockBias += news.effect[stock.id];
+          }
+          if (news.effect && news.effect[stock.cat]) {
+            stockBias += news.effect[stock.cat];
+          }
+        });
+
+        // Cap Taiwan stock 10% daily limit (漲跌幅限制 -9.9% ~ +9.9%)
+        stockBias = Math.max(-0.099, Math.min(0.099, stockBias));
+        const delta = stock.price * stockBias;
+        stock.price = Math.max(1, stock.price + delta);
+
+        if (stock.hold > 0) {
+          todayHoldingProfit += delta * stock.hold * 1000;
+        }
+        if ((stock.shortHold || 0) > 0) {
+          todayHoldingProfit += (-delta) * stock.shortHold * 1000;
+        }
+      });
+
+      // 6. Check Bankruptcy Condition
+      const currentNetWorth = calculateNetWorth();
+      if (currentNetWorth < 25000) {
+        if (delistedStock) {
+          showDelistModal(delistedStock, lostAmount, hadHolding, heldLots, hadShort, shortLots, shortWindfall);
+          if (hadShort) sound.playWin(); else sound.playDelist();
+        }
+        triggerBankruptcy();
+        return;
+      }
+
+      // Play sound
+      if (actualMarketUp) {
+        sound.playWin();
+      } else {
+        sound.playLose();
+      }
+
+      // 7. Show Settlement Modal
+      let lotterySummaryMsg = '';
+      if (wonLotteries.length > 0) {
+        const wonNames = wonLotteries.map(w => w.name).join('、');
+        lotterySummaryMsg += `<div style="font-size: 0.85rem; color: #fbbf24; font-weight: bold; margin-bottom: 4px;">🎉 <b>新股申購開獎：</b>恭喜幸運抽中【${wonNames}】！新股已撥入持股庫存！</div>`;
+      }
+      if (lostLotteries.length > 0) {
+        const lostNames = lostLotteries.map(l => l.name).join('、');
+        lotterySummaryMsg += `<div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 4px;">🎟️ <b>申購未中籤：</b>【${lostNames}】未中籤，已退回預扣股款 $${totalLotteryRefund.toLocaleString()} 元汪！</div>`;
+      }
+
+      showSettlementModal(actualMarketUp, indexFluctuation, predictionMsg, predictionBonus, todayHoldingProfit, shockMsg, lotterySummaryMsg);
+
+      // Show Lottery Win Modal if won
+      if (wonLotteries.length > 0) {
+        setTimeout(() => {
+          showLotteryWinModal(wonLotteries);
+          sound.playWin();
+        }, 300);
+      }
+
+      // Show Delisting Modal if triggered
+      if (delistedStock) {
+        setTimeout(() => {
+          showDelistModal(delistedStock, lostAmount, hadHolding, heldLots, hadShort, shortLots, shortWindfall);
+          if (hadShort) sound.playWin(); else sound.playDelist();
+        }, 350);
+      }
+
+      // 7. Push to Index History
+      if (!gameState.indexHistory) gameState.indexHistory = [];
+      gameState.indexHistory.push({
+        day: gameState.day,
+        index: gameState.twseIndex,
+        change: gameState.twseChange
+      });
+      if (gameState.indexHistory.length > 25) {
+        gameState.indexHistory.shift();
+      }
+
+      // 8. Advance Day & Refresh News
+      gameState.day++;
+      gameState.prediction = null;
+      rollDailyNews();
+      renderUI();
+    }
+
+    function showSettlementModal(marketUp, indexDiff, predictionMsg, bonus, todayHoldingProfit = 0, shockMsg = '', lotterySummaryMsg = '') {
+      const modal = document.getElementById('settle-modal');
+      const title = document.getElementById('settle-title');
+      const desc = document.getElementById('settle-desc');
+      const stats = document.getElementById('settle-stats');
+      const art = document.getElementById('settle-art');
+
+      title.textContent = `第 ${gameState.day} 天收盤日誌`;
+      title.className = `modal-title ${marketUp ? 'text-red' : 'text-green'}`;
+
+      art.innerHTML = marketUp ? `
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <circle cx="50" cy="50" r="45" fill="#fde68a"/>
+          <text x="50" y="55" font-size="30" text-anchor="middle">🚀</text>
+        </svg>
+      ` : `
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <circle cx="50" cy="50" r="45" fill="#fde68a"/>
+          <text x="50" y="55" font-size="30" text-anchor="middle">📉</text>
+        </svg>
+      `;
+
+      desc.innerHTML = `加權指數收在 <b>${gameState.twseIndex.toLocaleString()}</b>（${marketUp ? '▲ 漲' : '▼ 跌'} ${Math.abs(indexDiff)} 點）`;
+
+      const netWorth = calculateNetWorth();
+      const isHoldingProfitUp = todayHoldingProfit >= 0;
+      stats.innerHTML = `
+        ${shockMsg ? `<div style="font-size: 0.85rem; color: #f43f5e; font-weight: bold; margin-bottom: 8px;">${shockMsg}</div>` : ''}
+        ${lotterySummaryMsg ? `<div style="padding: 6px 10px; background: rgba(245, 158, 11, 0.1); border: 1px dashed rgba(245, 158, 11, 0.3); border-radius: 6px; margin-bottom: 8px;">${lotterySummaryMsg}</div>` : ''}
+        <div style="margin-bottom: 8px;">${predictionMsg}</div>
+        <div style="font-size: 0.9rem; margin-bottom: 6px; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+          今日手邊持股與空單損益：<b class="${isHoldingProfitUp ? 'text-red' : 'text-green'}">${isHoldingProfitUp ? '▲ +' : '▼ -'}$${Math.abs(Math.round(todayHoldingProfit)).toLocaleString()}</b>
+        </div>
+        <div style="font-size: 0.85rem; color: #38bdf8; margin-bottom: 4px;">當前市場氣氛：${gameState.marketSentiment} (恐慌貪婪: ${gameState.fearGreed})</div>
+        <div style="font-size: 0.9rem; color: #cbd5e1; margin-top: 6px;">當前總淨值：<b>$${Math.round(netWorth).toLocaleString()}</b></div>
+        <div style="font-size: 0.85rem; color: #94a3b8;">可用現金：$${Math.round(gameState.cash).toLocaleString()} ｜ 累計稅費：$${Math.round(gameState.totalFeesPaid || 0).toLocaleString()}</div>
+      `;
+
+      modal.style.display = 'flex';
+    }
+
+    function triggerBankruptcy() {
+      sound.playBankruptcy();
+      const modal = document.getElementById('bankruptcy-modal');
+      modal.style.display = 'flex';
+    }
+
+    function reorganizeStock(id) {
+      const stockIndex = gameState.stocks.findIndex(s => s.id === id);
+      if (stockIndex === -1) return;
+
+      const currentIds = new Set(gameState.stocks.map(s => s.id));
+      const availableCandidates = IPO_CANDIDATES.filter(c => !currentIds.has(c.id));
+
+      if (availableCandidates.length === 0) {
+        alert('證交所回報：目前暫無更多排隊審核的 IPO 公司汪！');
+        return;
+      }
+
+      const newStockData = availableCandidates[Math.floor(Math.random() * availableCandidates.length)];
+
+      gameState.stocks[stockIndex] = {
+        id: newStockData.id,
+        name: newStockData.name,
+        cat: newStockData.cat,
+        catName: newStockData.catName,
+        price: newStockData.price,
+        basePrice: newStockData.basePrice,
+        change: 0,
+        hold: 0,
+        totalCost: 0,
+        shortHold: 0,
+        shortCost: 0,
+        shortMargin: 0,
+        delisted: false
+      };
+
+      // Preserve delist history so no other stock ever delists in this run
+      if (!gameState.delistedHistory) gameState.delistedHistory = [];
+      if (!gameState.delistedHistory.includes(id)) {
+        gameState.delistedHistory.push(id);
+      }
+      gameState.hasDelistedOccurred = true;
+      gameState.delistCount = 1;
+
+      sound.playWin();
+      alert(`🎉 恭喜！證交所火速審核通過：新股【${newStockData.id} ${newStockData.name}】（定價 $${newStockData.price} 元）已成功掛牌遞補上市汪！`);
+      renderUI();
+    }
+
+    function showDelistModal(stock, lostAmount, hadHolding, heldLots, hadShort = false, shortLots = 0, shortWindfall = 0) {
+      const modal = document.getElementById('delist-modal');
+      const title = document.getElementById('delist-modal-title');
+      const desc = document.getElementById('delist-modal-desc');
+      const stats = document.getElementById('delist-modal-stats');
+
+      title.textContent = `🚨 驚爆核彈地雷！【${stock.id} ${stock.name}】勒令終止上市變壁紙！`;
+
+      const funnyStories = [
+        `🏢 <b>案情爆發：</b>董事長連夜打包兩卡裝滿美金的皮箱，搭乘私人包機直奔夏威夷度假！總部大樓已被檢調全面貼上封條！`,
+        `👵 <b>阿嬤心聲：</b>阿嬤今天走進廚房，順手把你印出來的【${stock.name}】股票憑證墊在熱雞湯鍋底，誇讚說：「這紙質真厚實，吸油又隔熱！」`,
+        `🐶 <b>波比日記：</b>柴犬波比默默把你手上的【${stock.name}】股票憑證拿去貼滿了狗窩內壁，當作嚴寒冬天的防風壁紙汪...`,
+        `💸 <b>證交所快訊：</b>證交所剛剛火速召開重訊記者會，宣布【${stock.id} ${stock.name}】每股淨值為負數，即刻正式「登出台股伺服器」！`
+      ];
+      const story = funnyStories[Math.floor(Math.random() * funnyStories.length)];
+      desc.innerHTML = story;
+
+      if (hadShort) {
+        stats.innerHTML = `
+          <div style="color: #10b981; font-weight: bold; font-size: 1.05rem; margin-bottom: 6px;">
+            🦅 空軍特工狂賺奇蹟！你融券放空的 ${shortLots} 張【${stock.name}】真的下市變壁紙！
+          </div>
+          <div style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 4px;">
+            股票買回成本直接歸 $0，退還全部保證金並全額保留放空款項，暴賺入袋：<b class="text-red">+$${Math.round(shortWindfall).toLocaleString()} 元</b>！
+          </div>
+          <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 6px; line-height: 1.4;">
+            💡 證交所特別通報：這就是教科書等級的空頭大獵殺！波比佩服得五體投地汪汪！
+          </div>
+        `;
+      } else if (hadHolding) {
+        stats.innerHTML = `
+          <div style="color: #ef4444; font-weight: bold; font-size: 1rem; margin-bottom: 6px;">
+            😭 慘劇警報：你持有的 ${heldLots} 張【${stock.name}】多單瞬間蒸發為 $0！
+          </div>
+          <div style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 4px;">
+            蒸發市值血汗錢約：<b class="text-red">-$${Math.round(lostAmount).toLocaleString()} 元</b>
+          </div>
+          <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 6px; line-height: 1.4;">
+            💡 溫馨提醒：請儘速至號子領取實體壁紙紀念品，或在股票卡片點擊「新股 IPO 遞補」重振旗鼓汪！
+          </div>
+        `;
+      } else {
+        stats.innerHTML = `
+          <div style="color: #10b981; font-weight: bold; font-size: 1rem; margin-bottom: 6px;">
+            🎉 萬幸大逃殺：波比緊急清點庫存，發現你一張多單都沒買！
+          </div>
+          <div style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 4px;">
+            隔壁融資大戶滿手【${stock.name}】已經在天台吹風，你默默擦了一把冷汗汪！
+          </div>
+          <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 6px; line-height: 1.4;">
+            💡 溫馨提醒：空出的股票席次可在股票清單中點擊「新股 IPO 遞補」引進全新黑馬飆股！
+          </div>
+        `;
+      }
+
+      modal.style.display = 'flex';
+    }
+
+    /* ==========================================================
+       9. EVENT LISTENERS
+       ========================================================== */
+    function setupEventListeners() {
+      // Delist Modal Close
+      document.getElementById('btn-delist-close').addEventListener('click', () => {
+        document.getElementById('delist-modal').style.display = 'none';
+      });
+
+      // Advance Day
+      document.getElementById('btn-advance-day').addEventListener('click', () => {
+        advanceTradingDay();
+      });
+
+      // Prediction Buttons
+      document.getElementById('btn-predict-up').addEventListener('click', () => {
+        gameState.prediction = gameState.prediction === 'up' ? null : 'up';
+        sound.playBuy();
+        renderUI();
+      });
+
+      document.getElementById('btn-predict-down').addEventListener('click', () => {
+        gameState.prediction = gameState.prediction === 'down' ? null : 'down';
+        sound.playSell();
+        renderUI();
+      });
+
+      // Filter tabs
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          gameState.activeFilter = e.target.dataset.filter;
+          renderStockList();
+        });
+      });
+
+      // Modal close
+      document.getElementById('btn-settle-close').addEventListener('click', () => {
+        document.getElementById('settle-modal').style.display = 'none';
+      });
+
+      // Bankruptcy Buttons
+      document.getElementById('btn-grandma-help').addEventListener('click', () => {
+        gameState.cash += 500000;
+        document.getElementById('bankruptcy-modal').style.display = 'none';
+        sound.playWin();
+        alert('👵 阿嬤拍拍你的頭：「憨孫欸，這五十萬先拿去花，不要再亂買明牌了嘿！」');
+        renderUI();
+      });
+
+      document.getElementById('btn-restart-game').addEventListener('click', () => {
+        resetGame();
+        document.getElementById('bankruptcy-modal').style.display = 'none';
+      });
+
+      // Capital Setting Modal
+      const capitalModal = document.getElementById('capital-modal');
+      const customCapitalInput = document.getElementById('input-custom-capital');
+
+      document.getElementById('btn-set-capital').addEventListener('click', () => {
+        capitalModal.style.display = 'flex';
+      });
+
+      document.getElementById('btn-cancel-capital').addEventListener('click', () => {
+        capitalModal.style.display = 'none';
+      });
+
+      // Preset buttons click
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          customCapitalInput.value = '';
+        });
+      });
+
+      // Custom input typing
+      customCapitalInput.addEventListener('input', () => {
+        if (customCapitalInput.value) {
+          document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
+        }
+      });
+
+      // Confirm capital change
+      document.getElementById('btn-confirm-capital').addEventListener('click', () => {
+        let amount = 2000000;
+        if (customCapitalInput.value && parseInt(customCapitalInput.value) >= 10000) {
+          amount = parseInt(customCapitalInput.value);
+        } else {
+          const selectedPreset = document.querySelector('.preset-btn.selected');
+          if (selectedPreset) {
+            amount = parseInt(selectedPreset.dataset.amount);
+          }
+        }
+
+        resetGame(amount);
+        capitalModal.style.display = 'none';
+        sound.playWin();
+        alert(`💰 起步資金已成功設定為 $${amount.toLocaleString()} 元！重新開局成功！`);
+      });
+
+      // Stock IPO Lottery Modals
+      const lotteryModal = document.getElementById('lottery-modal');
+      const btnLottery = document.getElementById('btn-lottery');
+      const btnOpenBanner = document.getElementById('btn-open-lottery-banner');
+      const btnCloseLottery = document.getElementById('btn-close-lottery');
+      const btnLotteryWinClose = document.getElementById('btn-lottery-win-close');
+      const lotteryWinModal = document.getElementById('lottery-win-modal');
+
+      if (btnLottery) {
+        btnLottery.addEventListener('click', () => {
+          renderLotteryModal();
+          lotteryModal.style.display = 'flex';
+        });
+      }
+
+      if (btnOpenBanner) {
+        btnOpenBanner.addEventListener('click', () => {
+          renderLotteryModal();
+          lotteryModal.style.display = 'flex';
+        });
+      }
+
+      if (btnCloseLottery) {
+        btnCloseLottery.addEventListener('click', () => {
+          lotteryModal.style.display = 'none';
+        });
+      }
+
+      if (btnLotteryWinClose) {
+        btnLotteryWinClose.addEventListener('click', () => {
+          lotteryWinModal.style.display = 'none';
+        });
+      }
+
+      // Reset Button
+      document.getElementById('btn-reset').addEventListener('click', () => {
+        if (confirm('確定要清除存檔並重新開局嗎？')) {
+          resetGame();
+        }
+      });
+
+      // BGM Toggle
+      document.getElementById('bgm-toggle').addEventListener('click', (e) => {
+        const isPlaying = sound.toggleBgm();
+        e.target.textContent = isPlaying ? '🎵 音樂：開啟' : '🔇 音樂：靜音';
+      });
+    }
+
+    function resetGame(newCapital = null) {
+      localStorage.removeItem('shiba_stock_save');
+      const capital = newCapital !== null ? Number(newCapital) : (gameState.initialCapital || 2000000);
+      gameState = {
+        day: 1,
+        twseIndex: 22850,
+        twseChange: 0,
+        cash: capital,
+        initialCapital: capital,
+        stocks: JSON.parse(JSON.stringify(INITIAL_STOCKS)),
+        todaysNews: [],
+        prediction: null,
+        correctPredictions: 0,
+        totalPredictions: 0,
+        activeFilter: 'all',
+        marketSentiment: '⚖️ 高檔震盪洗盤',
+        fearGreed: 50,
+        totalFeesPaid: 0,
+        hasDelistedOccurred: false,
+        delistCount: 0,
+        delistedHistory: [],
+        activeLotteries: pickRandomLotteries(),
+        myLotteryEntries: [],
+        indexHistory: JSON.parse(JSON.stringify(DEFAULT_INDEX_HISTORY))
+      };
+      rollDailyNews();
+      renderUI();
+    }
+
+    /* ==========================================================
+       10. INITIALIZATION
+       ========================================================== */
+    function init() {
+      loadState();
+      if (!gameState.todaysNews || gameState.todaysNews.length === 0) {
+        rollDailyNews();
+      }
+      setupEventListeners();
+      setupChartInteractivity();
+      renderUI();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
